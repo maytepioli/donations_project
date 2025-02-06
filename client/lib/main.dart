@@ -12,9 +12,11 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       title: 'Donations',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 215, 222, 230)),
+        colorScheme:
+            ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 215, 222, 230)),
         useMaterial3: true,
       ),
       routes: appRoutes,
