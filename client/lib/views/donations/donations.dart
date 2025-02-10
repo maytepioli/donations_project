@@ -27,6 +27,33 @@ class DonationsScreenState extends State<DonationsScreen> {
 
     return Scaffold(
       backgroundColor: Colors.white,
+      appBar: AppBar(
+        backgroundColor: Colors.white,
+        elevation: 0,
+        title: const Text(
+          'Donaciones',
+          style: TextStyle(
+            color: Colors.black,
+            fontSize: 24,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
+        centerTitle: true,
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.notifications, color: Colors.black),
+            onPressed: () {
+              Navigator.pushNamed(context, '/notification');
+            },
+          ),
+          IconButton(
+            icon: const Icon(Icons.account_circle, color: Colors.black),
+            onPressed: () {
+              Navigator.pushNamed(context, '/profile');
+            },
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(
             16.0), // Añadir padding para separar de los bordes
@@ -34,8 +61,10 @@ class DonationsScreenState extends State<DonationsScreen> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             titleInput(TextEditingController()),
-            SizedBox(height: 16),
+            SizedBox(height: 24), // Aumentar el espacio entre los widgets
             descriptionInput(TextEditingController()),
+            SizedBox(height: 24),
+            buildButtonContinue(context), // Botón añadido aquí
           ],
         ),
       ),
@@ -78,28 +107,27 @@ Widget titleInput(TextEditingController controller) {
       Text(
         'Título',
         style: TextStyle(
-          color: Colors.black,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
+            fontSize: 22,
+            fontWeight: FontWeight.bold), // Aumentar el tamaño del texto
       ),
-      SizedBox(height: 5),
+      SizedBox(height: 10),
       Container(
         width: double.infinity, // Para que ocupe todo el ancho disponible
-        height: 60,
+        height: 60, // Aumentar la altura
         decoration: BoxDecoration(
           color: myColor,
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(16), // Bordes más redondeados
         ),
         child: TextField(
           controller: controller,
           decoration: InputDecoration(
             hintText: 'Escribe el título aquí',
             border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(20),
+              borderRadius: BorderRadius.circular(16),
               borderSide: BorderSide.none, // Sin borde exterior
             ),
-            contentPadding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            contentPadding: EdgeInsets.symmetric(
+                horizontal: 20, vertical: 18), // Más espacio interno
             filled: true,
             fillColor: myColor,
           ),
@@ -117,27 +145,50 @@ Widget descriptionInput(TextEditingController controller) {
       Text(
         'Descripción',
         style: TextStyle(
-          color: Colors.black,
-          fontSize: 20,
-          fontWeight: FontWeight.bold,
-        ),
+            fontSize: 22,
+            fontWeight: FontWeight.bold), // Aumentar el tamaño del texto
       ),
-      SizedBox(height: 5),
+      SizedBox(height: 10),
       Container(
-        padding: EdgeInsets.all(12),
+        padding: EdgeInsets.all(16), // Más espacio interno
+        height: 150, // Aumentar la altura del contenedor
         decoration: BoxDecoration(
-          color: myColor,
-          borderRadius: BorderRadius.circular(20),
-          border: Border.all(color: myColor),
+          color: Colors.grey[200],
+          borderRadius: BorderRadius.circular(20), // Bordes más redondeados
+          border: Border.all(color: Colors.grey),
         ),
         child: TextField(
           controller: controller,
-          maxLines: 5,
+          maxLines: null, // Permitir múltiples líneas
+          expands: true, // Expandir para llenar el contenedor
           decoration: InputDecoration.collapsed(
             hintText: 'Agrega una descripción detallada aquí...',
           ),
         ),
       ),
     ],
+  );
+}
+
+// Botón de Continuar
+Widget buildButtonContinue(BuildContext context) {
+  return ElevatedButton(
+    onPressed: () {
+      Navigator.pushNamed(context, '/MapScreen');
+    },
+    style: ElevatedButton.styleFrom(
+      backgroundColor: myColor,
+      minimumSize: const Size(150, 50),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
+      ),
+    ),
+    child: const Text(
+      'Continuar',
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: 20,
+      ),
+    ),
   );
 }
