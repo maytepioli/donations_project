@@ -37,7 +37,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
           IconButton(
             icon: const Icon(Icons.settings, color: Colors.black),
             onPressed: () {
-              Navigator.pushNamed(context, '/config');
+              print('Configuración');
+              Navigator.pushNamed(context, '/configuration');
             },
           ),
         ],
