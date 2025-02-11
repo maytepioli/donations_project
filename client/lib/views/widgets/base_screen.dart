@@ -8,8 +8,7 @@ class BaseScreen extends StatelessWidget {
   final String title;
   final int currentPage;
   final ValueChanged<int>? onBottomNavTap;
-  final bool
-      showAppBarActions; // Nuevo parámetro para controlar los íconos del AppBar
+  final bool showAppBarActions;
 
   const BaseScreen({
     Key? key,
@@ -37,12 +36,20 @@ class BaseScreen extends StatelessWidget {
         centerTitle: true,
         actions: showAppBarActions
             ? [
-                IconButton(
-                  icon: const Icon(Icons.notifications, color: Colors.black),
-                  onPressed: () {
-                    Navigator.pushNamed(context, '/notification');
+                // Envolvemos el botón de notificaciones en un Builder
+                Builder(
+                  builder: (BuildContext context) {
+                    return IconButton(
+                      icon:
+                          const Icon(Icons.notifications, color: Colors.black),
+                      onPressed: () {
+                        print('Notificaciones pressed');
+                        Navigator.pushNamed(context, '/notification');
+                      },
+                    );
                   },
                 ),
+                // Ícono de perfil (ya estaba envuelto en Builder)
                 Builder(
                   builder: (context) => IconButton(
                     icon: const Icon(Icons.account_circle, color: Colors.black),
@@ -54,7 +61,6 @@ class BaseScreen extends StatelessWidget {
               ]
             : null,
       ),
-      // Solo se muestra el Drawer si se están mostrando las acciones (perfil)
       drawer: showAppBarActions ? _buildSideMenu(context) : null,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -79,7 +85,6 @@ class BaseScreen extends StatelessWidget {
   }
 }
 
-// Función auxiliar para construir el menú lateral (Drawer)
 Widget _buildSideMenu(BuildContext context) {
   return Drawer(
     child: ListView(
@@ -113,14 +118,6 @@ Widget _buildSideMenu(BuildContext context) {
           onTap: () {
             Navigator.pop(context);
             Navigator.pushNamed(context, '/profile');
-          },
-        ),
-        ListTile(
-          leading: const Icon(Icons.settings),
-          title: const Text('Configuración'),
-          onTap: () {
-            Navigator.pop(context);
-            Navigator.pushNamed(context, '/config');
           },
         ),
       ],

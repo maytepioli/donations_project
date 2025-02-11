@@ -8,7 +8,12 @@ class Login extends StatefulWidget {
 }
 
 class LoguinState extends State<Login> {
-  late Color myColor;
+  // Ahora se usan los colores que me pasaste, pero invertidos:
+  // primaryColor: rosa (#CC6D7F) para elementos principales (botones, textos destacados)
+  // secondaryColor: verde (#D4E7D2) para detalles (bordes, íconos, etc.)
+  final Color primaryColor = const Color(0xFFCC6D7F);
+  final Color secondaryColor = const Color(0xFFD4E7D2);
+
   late Size mediaSize;
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
@@ -16,17 +21,24 @@ class LoguinState extends State<Login> {
   @override
   Widget build(BuildContext context) {
     mediaSize = MediaQuery.of(context).size;
-    myColor = Color(0xFFDEC3BE);
 
     return Container(
       decoration: BoxDecoration(
-        color: myColor,
+        // Gradiente de fondo: de rosa a verde
+        gradient: LinearGradient(
+          colors: [primaryColor, secondaryColor],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        // Si deseas usar una imagen de fondo, puedes descomentar lo siguiente:
+        /*
         image: DecorationImage(
           image: AssetImage("assets/images/dec3be.png"),
           fit: BoxFit.cover,
           colorFilter:
-              ColorFilter.mode(myColor.withAlpha(70), BlendMode.dstATop),
+              ColorFilter.mode(primaryColor.withAlpha(70), BlendMode.dstATop),
         ),
+        */
       ),
       child: Scaffold(
         backgroundColor: Colors.transparent,
@@ -56,12 +68,13 @@ class LoguinState extends State<Login> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
+          // Nombre de la app en la parte superior
           Stack(
             alignment: Alignment.center,
             children: [
               Text(
                 'HopeBox',
-                style: TextStyle(
+                style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
                   fontSize: 40,
@@ -96,10 +109,11 @@ class LoguinState extends State<Login> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Título de bienvenida en rosa (color principal)
           Text(
             'Bienvenido',
             style: TextStyle(
-              color: myColor,
+              color: primaryColor,
               fontSize: 30,
               fontWeight: FontWeight.bold,
             ),
@@ -116,7 +130,7 @@ class LoguinState extends State<Login> {
           const SizedBox(height: 20),
           _buildGoogleButton(),
           const SizedBox(height: 20),
-          _buildRegisterBotoon(),
+          // _buildRegisterButton(),
           const SizedBox(height: 20),
         ],
       ),
@@ -126,7 +140,7 @@ class LoguinState extends State<Login> {
   Widget _buildGreyText(String text) {
     return Text(
       text,
-      style: TextStyle(
+      style: const TextStyle(
         color: Colors.grey,
         fontSize: 16,
       ),
@@ -134,11 +148,25 @@ class LoguinState extends State<Login> {
   }
 
   Widget _buildInputField(TextEditingController controller,
-      {isPassword = false}) {
+      {bool isPassword = false}) {
     return TextField(
       controller: controller,
       decoration: InputDecoration(
-        suffixIcon: isPassword ? Icon(Icons.remove_red_eye) : null,
+        // Ícono para mostrar/ocultar contraseña (detalle en verde)
+        suffixIcon: isPassword
+            ? Icon(Icons.remove_red_eye, color: secondaryColor)
+            : null,
+        // Bordes personalizados:
+        // - Borde habilitado en verde (secondaryColor)
+        // - Borde enfocado en rosa (primaryColor)
+        enabledBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: secondaryColor),
+          borderRadius: BorderRadius.circular(10),
+        ),
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: primaryColor, width: 2),
+          borderRadius: BorderRadius.circular(10),
+        ),
       ),
       obscureText: isPassword,
     );
@@ -147,17 +175,17 @@ class LoguinState extends State<Login> {
   Widget _buildButton() {
     return ElevatedButton(
       onPressed: () {
-        Navigator.pushNamed(context, '/home');
+        Navigator.pushNamed(context, '/');
       },
       style: ElevatedButton.styleFrom(
         shape: const StadiumBorder(),
-        backgroundColor: myColor,
+        backgroundColor: primaryColor,
         foregroundColor: Colors.white,
         elevation: 20,
-        shadowColor: myColor,
+        shadowColor: primaryColor,
         minimumSize: const Size.fromHeight(60),
       ),
-      child: Text('Iniciar Sesión'),
+      child: const Text('Iniciar Sesión'),
     );
   }
 
@@ -171,7 +199,7 @@ class LoguinState extends State<Login> {
         backgroundColor: Colors.white,
         foregroundColor: Colors.black,
         elevation: 20,
-        shadowColor: myColor,
+        shadowColor: secondaryColor,
         minimumSize: const Size.fromHeight(60),
       ),
       child: Row(
@@ -186,20 +214,20 @@ class LoguinState extends State<Login> {
     );
   }
 
-  Widget _buildRegisterBotoon() {
-    return ElevatedButton(
-      onPressed: () {
-        Navigator.pushNamed(context, '/register');
-      },
-      style: ElevatedButton.styleFrom(
-        shape: const StadiumBorder(),
-        backgroundColor: myColor,
-        foregroundColor: Color.fromARGB(255, 245, 245, 245),
-        elevation: 20,
-        shadowColor: myColor,
-        minimumSize: const Size.fromHeight(60),
-      ),
-      child: Text('Registrarse'),
-    );
-  }
+  // Widget _buildRegisterButton() {
+  //   return ElevatedButton(
+  //     onPressed: () {
+  //       Navigator.pushNamed(context, '/register');
+  //     },
+  //     style: ElevatedButton.styleFrom(
+  //       shape: const StadiumBorder(),
+  //       backgroundColor: primaryColor,
+  //       foregroundColor: Colors.white,
+  //       elevation: 20,
+  //       shadowColor: primaryColor,
+  //       minimumSize: const Size.fromHeight(60),
+  //     ),
+  //     child: const Text('Registrarse'),
+  //   );
+  // }
 }

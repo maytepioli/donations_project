@@ -147,7 +147,7 @@ Widget buildButtonContinue() {
     builder: (context) => ElevatedButton(
       onPressed: () {
         print("Botón Continuar presionado");
-        Navigator.pushNamed(context, '/MapScreen');
+        Navigator.pushNamed(context, '/map');
       },
       style: ElevatedButton.styleFrom(
         backgroundColor: const Color(0xFFDEC3BE),
