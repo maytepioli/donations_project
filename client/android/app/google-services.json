@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "672187430397",
+    "project_id": "donationcenterppg",
+    "storage_bucket": "donationcenterppg.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:672187430397:android:fadf49a1687d2e53171594",
+        "android_client_info": {
+          "package_name": "com.example.pruebaflutter"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDnfja1jgBN9JLRZfi-9AcKz8UU3dA2U1Q"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
