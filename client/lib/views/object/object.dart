@@ -1,30 +1,39 @@
 import 'package:flutter/material.dart';
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:flutter_application/views/widgets/base_screen.dart';
 
 class ObjectScreen extends StatefulWidget {
   const ObjectScreen({Key? key}) : super(key: key);
 
   @override
-  ObjectState createState() => ObjectState();
+  ObjectScreenState createState() => ObjectScreenState();
 }
 
-class ObjectState extends State<ObjectScreen> {
+class ObjectScreenState extends State<ObjectScreen> {
   late Color myColor;
   late Size mediaSize;
-  int _page = 1; // Inicializado en 1 para que se seleccione el botón del medio
-
-  // GlobalKey para el CurvedNavigationBar (opcional)
-  final GlobalKey _bottomNavigationKey = GlobalKey();
+  int _page = 1; // Índice inicial para la barra inferior
 
   @override
   Widget build(BuildContext context) {
     mediaSize = MediaQuery.of(context).size;
     myColor = const Color(0xFFDEC3BE);
 
-    return Scaffold(
-      backgroundColor: Colors.white,
-      // Aquí puedes colocar el contenido propio de la ruta si lo deseas.
-      // Si solo quieres la navegación, puedes dejarlo vacío o usar Container().
+    return BaseScreen(
+      title: 'Object', // Título del AppBar
+      currentPage: _page,
+      showAppBarActions: false, // Oculta íconos de notificaciones y perfil
+      onBottomNavTap: (index) {
+        if (index == 0) {
+          Navigator.pushNamed(context, '/');
+        } else if (index == 1) {
+          Navigator.pushNamed(context, '/object');
+        } else if (index == 2) {
+          Navigator.pushNamed(context, '/map');
+        }
+        setState(() {
+          _page = index;
+        });
+      },
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
@@ -34,48 +43,20 @@ class ObjectState extends State<ObjectScreen> {
               children: [
                 _buildBottomFood(mediaSize),
                 const SizedBox(width: 20),
-                _buildBottomClothes(mediaSize)
+                _buildBottomClothes(mediaSize),
               ],
             ),
-            const SizedBox(height: 20), // Espacio entre filas
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 _buildBottomToys(mediaSize),
                 const SizedBox(width: 20),
-                _buildBottomPets(mediaSize)
+                _buildBottomPets(mediaSize),
               ],
-            )
+            ),
           ],
         ),
-      ),
-      bottomNavigationBar: CurvedNavigationBar(
-        key: _bottomNavigationKey,
-        index: _page,
-        height: 60.0,
-        items: const <Widget>[
-          Icon(Icons.home, size: 30, color: Colors.black),
-          Icon(Icons.add, size: 30, color: Colors.black),
-          Icon(Icons.map_outlined, size: 30, color: Colors.black),
-        ],
-        color: myColor,
-        buttonBackgroundColor: myColor,
-        backgroundColor: Colors.white,
-        animationCurve: Curves.easeInOut,
-        animationDuration: const Duration(milliseconds: 300),
-        onTap: (index) {
-          // Navega a las rutas según el índice seleccionado
-          if (index == 0) {
-            Navigator.pushNamed(context, '/');
-          } else if (index == 1) {
-            Navigator.pushNamed(context, '/object');
-          } else if (index == 2) {
-            Navigator.pushNamed(context, '/map');
-          }
-          setState(() {
-            _page = index;
-          });
-        },
       ),
     );
   }
@@ -86,9 +67,8 @@ class ObjectState extends State<ObjectScreen> {
         Navigator.pushNamed(context, '/donations');
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: myColor, // Utiliza myColor para el fondo del botón
-        minimumSize: const Size(
-            150, 150), // Aumenta el tamaño temporalmente para depurar
+        backgroundColor: myColor,
+        minimumSize: const Size(150, 150),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -107,9 +87,8 @@ class ObjectState extends State<ObjectScreen> {
         Navigator.pushNamed(context, '/donations');
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: myColor, // Utiliza myColor para el fondo del botón
-        minimumSize: const Size(
-            150, 150), // Aumenta el tamaño temporalmente para depurar
+        backgroundColor: myColor,
+        minimumSize: const Size(150, 150),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -128,9 +107,8 @@ class ObjectState extends State<ObjectScreen> {
         Navigator.pushNamed(context, '/donations');
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: myColor, // Utiliza myColor para el fondo del botón
-        minimumSize: const Size(
-            150, 150), // Aumenta el tamaño temporalmente para depurar
+        backgroundColor: myColor,
+        minimumSize: const Size(150, 150),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
@@ -144,15 +122,13 @@ class ObjectState extends State<ObjectScreen> {
   }
 
   Widget _buildBottomPets(Size mediaSize) {
-    print("Construyendo el botón");
     return ElevatedButton(
       onPressed: () {
         Navigator.pushNamed(context, '/donations');
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: myColor, // Utiliza myColor para el fondo del botón
-        minimumSize: const Size(
-            150, 150), // Aumenta el tamaño temporalmente para depurar
+        backgroundColor: myColor,
+        minimumSize: const Size(150, 150),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12),
         ),
