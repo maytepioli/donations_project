@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 
 class DonationsScreen extends StatefulWidget {
-  const DonationsScreen({Key? key}) : super(key: key);
+  const DonationsScreen({super.key});
 
   @override
   DonationsScreenState createState() => DonationsScreenState();

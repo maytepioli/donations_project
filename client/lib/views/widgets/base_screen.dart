@@ -11,13 +11,13 @@ class BaseScreen extends StatelessWidget {
   final bool showAppBarActions;
 
   const BaseScreen({
-    Key? key,
+    super.key,
     required this.body,
     required this.title,
     this.currentPage = 1,
     this.onBottomNavTap,
     this.showAppBarActions = true,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

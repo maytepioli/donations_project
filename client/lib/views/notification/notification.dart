@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 const Color myColor = Color(0xFFDEC3BE);
 
 class NotificationScreen extends StatelessWidget {
-  NotificationScreen({Key? key}) : super(key: key);
+  NotificationScreen({super.key});
 
   // Lista de notificaciones de ejemplo
   final List<NotificationItem> notifications = [
@@ -55,8 +55,7 @@ class NotificationItem {
 class NotificationBubble extends StatelessWidget {
   final NotificationItem notification;
 
-  const NotificationBubble({Key? key, required this.notification})
-      : super(key: key);
+  const NotificationBubble({super.key, required this.notification});
 
   @override
   Widget build(BuildContext context) {

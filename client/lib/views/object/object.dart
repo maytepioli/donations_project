@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_application/views/widgets/base_screen.dart';
 
 class ObjectScreen extends StatefulWidget {
-  const ObjectScreen({Key? key}) : super(key: key);
+  const ObjectScreen({super.key});
 
   @override
   ObjectScreenState createState() => ObjectScreenState();

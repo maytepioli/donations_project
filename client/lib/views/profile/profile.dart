@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 const Color myColor = Color(0xFFDEC3BE);
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  const ProfileScreen({super.key});
 
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
