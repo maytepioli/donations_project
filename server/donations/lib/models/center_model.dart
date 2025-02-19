@@ -5,6 +5,8 @@ import 'package:uuid/uuid.dart';
 /// {@template donations}
 /// A very good dart package
 /// {@endtemplate}
+// part 'center.g.dart'; // Archivo generado automáticamente
+
 @JsonSerializable()
 class Center extends Equatable {
   /// {@macro donations}
@@ -15,8 +17,8 @@ class Center extends Equatable {
     required this.address,
     required this.phoneNumber,
     required this.email,
-  }): uuid = uuid ?? _uuidGenerator.v4(),
-    assert(uuid == null || uuid.isNotEmpty, 'id cannot be empty');
+  })  : uuid = uuid ?? _uuidGenerator.v4(),
+        assert(uuid == null || uuid.isNotEmpty, 'id cannot be empty');
 
   final String uuid;
   final String name;

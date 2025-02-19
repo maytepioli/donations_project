@@ -1,4 +1,4 @@
-import 'package:flutter_application/views/notification/notification.dart';
+import 'package:flutter_application/views/notification_donor/notification.dart';
 import 'views/donations/donations.dart';
 import 'views/home/home.dart';
 import 'views/login/login.dart';

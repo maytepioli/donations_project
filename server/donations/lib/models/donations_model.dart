@@ -5,20 +5,22 @@ import 'package:uuid/uuid.dart';
 /// {@template donations}
 /// A very good dart package
 /// {@endtemplate}
+
 @JsonSerializable()
 class Donations extends Equatable {
   /// {@macro donations}
   static const Uuid _uuidGenerator = Uuid();
+
   Donations({
     String? uuid,
     required this.type,
     required this.name,
     String description = '',
     DateTime? creationDate,
-  }): uuid = uuid ?? _uuidGenerator.v4(), 
-    assert(uuid == null || uuid.isNotEmpty, 'id cannot be empty'),
-    creationDate = creationDate ?? DateTime.now(),
-    description = descriptionLenght(description);
+  })  : uuid = uuid ?? _uuidGenerator.v4(),
+        assert(uuid == null || uuid.isNotEmpty, 'id cannot be empty'),
+        creationDate = creationDate ?? DateTime.now(),
+        description = descriptionLenght(description);
 
   final String uuid;
   final String type;
@@ -30,12 +32,12 @@ class Donations extends Equatable {
 
   factory Donations.fromJson(Map<String, dynamic> json) {
     return Donations(
-        uuid: json['uuid'] as String,
-        //creator: json['creator'] as User,
-        type: json['type'] as String,
-        name: json['name'] as String,
-        description: json['description'] as String,
-        //imgUrls: json['imgUrls'] as List<String>,
+      uuid: json['uuid'] as String,
+      //creator: json['creator'] as User,
+      type: json['type'] as String,
+      name: json['name'] as String,
+      description: json['description'] as String,
+      //imgUrls: json['imgUrls'] as List<String>,
     );
   }
 
@@ -51,5 +53,8 @@ class Donations extends Equatable {
   ///
   @override
   List<Object?> get props => [uuid, type, name, description, creationDate];
-
+  @override
+  String toString() {
+    return 'Donations(uuid: $uuid, type: $type, name: $name, description: $description, creationDate: $creationDate)';
+  }
 }
