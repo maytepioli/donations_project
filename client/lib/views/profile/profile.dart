@@ -3,20 +3,18 @@ import 'package:flutter/material.dart';
 const Color myColor = Color(0xFFDEC3BE);
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({Key? key}) : super(key: key);
+  const ProfileScreen({super.key});
 
   @override
   _ProfileScreenState createState() => _ProfileScreenState();
 }
 
 class _ProfileScreenState extends State<ProfileScreen> {
-  // Si se obtiene la foto del usuario (por ejemplo, de Google), se asigna a esta variable;
-  // de lo contrario, se usa una imagen por defecto.
   String profileImageUrl = '';
   final TextEditingController _nameController =
       TextEditingController(text: 'Juan Pérez');
   final TextEditingController _phoneController = TextEditingController();
-  int donationsCount = 5; // Ejemplo de cantidad de donaciones
+  int donationsCount = 5;
 
   @override
   Widget build(BuildContext context) {
@@ -33,28 +31,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.settings, color: Colors.black),
-            onPressed: () {
-              print('Configuración');
-              Navigator.pushNamed(context, '/configuration');
-            },
-          ),
-        ],
       ),
       backgroundColor: Colors.grey[200],
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
-            // La foto de perfil permanece fuera del Card.
             _buildProfilePicture(),
             const SizedBox(height: 24),
-            // La tarjeta de donaciones también queda por fuera.
             _buildDonationCard(),
             const SizedBox(height: 24),
-            // Se agrupan los campos editables y el botón dentro de un Card.
             Card(
               elevation: 8,
               shape: RoundedRectangleBorder(
@@ -79,7 +65,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // Widget para la foto de perfil.
   Widget _buildProfilePicture() {
     return CircleAvatar(
       radius: 50,
@@ -90,7 +75,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // Widget para la tarjeta de donaciones.
   Widget _buildDonationCard() {
     return Card(
       color: myColor,
@@ -116,7 +100,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // Widget para el campo del nombre.
   Widget _buildNameField() {
     return TextFormField(
       controller: _nameController,
@@ -127,7 +110,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // Widget para el campo del teléfono.
   Widget _buildPhoneField() {
     return TextFormField(
       controller: _phoneController,
@@ -138,11 +120,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  // Widget para el botón de guardar cambios.
   Widget _buildSaveButton() {
     return ElevatedButton(
       onPressed: () {
-        // Aquí puedes agregar la lógica para guardar los cambios.
         print('Guardar cambios');
       },
       style: ElevatedButton.styleFrom(

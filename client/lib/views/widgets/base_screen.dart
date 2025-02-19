@@ -9,6 +9,9 @@ class BaseScreen extends StatelessWidget {
   final int currentPage;
   final ValueChanged<int>? onBottomNavTap;
   final bool showAppBarActions;
+  final List<Widget>? bottomNavItems;
+  final TextStyle?
+      appBarTitleStyle; // Nuevo parámetro para el estilo del título
 
   const BaseScreen({
     Key? key,
@@ -17,26 +20,37 @@ class BaseScreen extends StatelessWidget {
     this.currentPage = 1,
     this.onBottomNavTap,
     this.showAppBarActions = true,
+    this.bottomNavItems,
+    this.appBarTitleStyle, // Recibe el estilo personalizado si se desea
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    // Si no se pasa lista, usamos la lista por defecto.
+    final items = bottomNavItems ??
+        const <Widget>[
+          Icon(Icons.home, size: 30, color: Colors.black),
+          Icon(Icons.add, size: 30, color: Colors.black),
+          Icon(Icons.map_outlined, size: 30, color: Colors.black),
+        ];
+
     return Scaffold(
       appBar: AppBar(
         title: Text(
           title,
-          style: const TextStyle(
-            color: Colors.black,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
+          style: appBarTitleStyle ??
+              const TextStyle(
+                color: Colors.black,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
         ),
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
         actions: showAppBarActions
             ? [
-                // Envolvemos el botón de notificaciones en un Builder
+                // Botón de notificaciones
                 Builder(
                   builder: (BuildContext context) {
                     return IconButton(
@@ -49,7 +63,7 @@ class BaseScreen extends StatelessWidget {
                     );
                   },
                 ),
-                // Ícono de perfil (ya estaba envuelto en Builder)
+                // Botón de perfil
                 Builder(
                   builder: (context) => IconButton(
                     icon: const Icon(Icons.account_circle, color: Colors.black),
@@ -69,11 +83,7 @@ class BaseScreen extends StatelessWidget {
       bottomNavigationBar: CurvedNavigationBar(
         index: currentPage,
         height: 60.0,
-        items: const <Widget>[
-          Icon(Icons.home, size: 30, color: Colors.black),
-          Icon(Icons.add, size: 30, color: Colors.black),
-          Icon(Icons.map_outlined, size: 30, color: Colors.black),
-        ],
+        items: items,
         color: myColor,
         buttonBackgroundColor: myColor,
         backgroundColor: Colors.white,
@@ -112,12 +122,35 @@ Widget _buildSideMenu(BuildContext context) {
             ],
           ),
         ),
+        // Opción de Perfil
         ListTile(
           leading: const Icon(Icons.person),
           title: const Text('Perfil'),
           onTap: () {
             Navigator.pop(context);
             Navigator.pushNamed(context, '/profile');
+          },
+        ),
+        // Nueva opción: Donaciones (Regalos)
+        ListTile(
+          leading: const Icon(Icons.card_giftcard),
+          title: const Text('Donaciones'),
+          onTap: () {
+            Navigator.pop(context);
+            Navigator.pushNamed(
+                context, '/gifts'); // Asegúrate de definir esta ruta
+          },
+        ),
+        // Nueva opción: Cerrar Sesión
+        ListTile(
+          leading: const Icon(Icons.logout),
+          title: const Text('Cerrar Sesión'),
+          onTap: () {
+            Navigator.pop(context);
+            // Aquí puedes agregar la lógica para cerrar sesión.
+            // Por ejemplo:
+            // AuthService.logout();
+            Navigator.pushReplacementNamed(context, '/login');
           },
         ),
       ],

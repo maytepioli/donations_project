@@ -10,6 +10,8 @@ class DonationsScreen extends StatefulWidget {
 
 class DonationsScreenState extends State<DonationsScreen> {
   int _page = 1; // Índice actual para la barra de navegación inferior
+  final TextEditingController _titleController = TextEditingController();
+  final TextEditingController _descriptionController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -26,18 +28,18 @@ class DonationsScreenState extends State<DonationsScreen> {
         backgroundColor: Colors.white,
         elevation: 0,
         centerTitle: true,
-        // Se han removido los íconos de notificaciones y perfil
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            titleInput(TextEditingController()),
+            titleInput(_titleController),
             const SizedBox(height: 24),
-            descriptionInput(TextEditingController()),
+            descriptionInput(_descriptionController),
             const SizedBox(height: 24),
-            buildButtonContinue(),
+            buildButtonContinue(
+                _titleController, _descriptionController, context),
           ],
         ),
       ),
@@ -142,26 +144,31 @@ Widget descriptionInput(TextEditingController controller) {
   );
 }
 
-Widget buildButtonContinue() {
-  return Builder(
-    builder: (context) => ElevatedButton(
-      onPressed: () {
-        print("Botón Continuar presionado");
-        Navigator.pushNamed(context, '/map');
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFFDEC3BE),
-        minimumSize: const Size(150, 50),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
-        ),
+Widget buildButtonContinue(TextEditingController titleController,
+    TextEditingController descController, BuildContext context) {
+  return ElevatedButton(
+    onPressed: () {
+      Navigator.pushNamed(
+        context,
+        '/map',
+        arguments: {
+          'title': titleController.text,
+          'description': descController.text,
+        },
+      );
+    },
+    style: ElevatedButton.styleFrom(
+      backgroundColor: const Color(0xFFDEC3BE),
+      minimumSize: const Size(150, 50),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(20),
       ),
-      child: const Text(
-        'Continuar',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 20,
-        ),
+    ),
+    child: const Text(
+      'Continuar',
+      style: TextStyle(
+        color: Colors.white,
+        fontSize: 20,
       ),
     ),
   );
