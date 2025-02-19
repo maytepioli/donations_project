@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -83,6 +85,32 @@ class LoguinState extends State<Login> {
               ),
             ],
           ),
+        ],
+      ),
+    );
+  }
+
+    Widget _buildGoogleButton() {
+    return ElevatedButton(
+      onPressed: () {
+        // Acción para iniciar sesión con Google
+        singInWithGoogle();
+      },
+      style: ElevatedButton.styleFrom(
+        shape: const StadiumBorder(),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 20,
+        shadowColor: secondaryColor,
+        minimumSize: const Size.fromHeight(60),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Image.asset('assets/icons/image.png', width: 24, height: 24),
+          const SizedBox(width: 10),
+          const Text('Iniciar sesión con Google'),
         ],
       ),
     );
@@ -189,30 +217,7 @@ class LoguinState extends State<Login> {
     );
   }
 
-  Widget _buildGoogleButton() {
-    return ElevatedButton(
-      onPressed: () {
-        // Acción para iniciar sesión con Google
-      },
-      style: ElevatedButton.styleFrom(
-        shape: const StadiumBorder(),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black,
-        elevation: 20,
-        shadowColor: secondaryColor,
-        minimumSize: const Size.fromHeight(60),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Image.asset('assets/icons/image.png', width: 24, height: 24),
-          const SizedBox(width: 10),
-          const Text('Iniciar sesión con Google'),
-        ],
-      ),
-    );
-  }
+
 
   // Widget _buildRegisterButton() {
   //   return ElevatedButton(
@@ -230,4 +235,28 @@ class LoguinState extends State<Login> {
   //     child: const Text('Registrarse'),
   //   );
   // }
+  singInWithGoogle() async {
+
+    GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+
+    GoogleSignInAuthentication? googleAuth = await googleUser?.authentication;
+
+    AuthCredential credential = GoogleAuthProvider.credential(
+      accessToken: googleAuth?.accessToken,
+      idToken: googleAuth?.idToken
+    );
+    UserCredential userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+
+    // ignore: avoid_print
+    if (userCredential.user?.displayName == null){
+      Navigator.pushNamed(context, '/');
+      print("NADAAAAAAAAAAAAAAAAAAAAAAAAA");
+    }
+    else {
+      Navigator.pushNamed(context, '/map');
+      print(userCredential.user?.displayName);
+
+    }
+  } 
+  
 }
