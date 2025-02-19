@@ -46,7 +46,7 @@ class DonationsScreenState extends State<DonationsScreen> {
             descriptionInput(_descriptionController),
             const SizedBox(height: 24),
             buildButtonContinue(
-                _titleController, _descriptionController, context),
+              /*  _titleController, _descriptionController, context*/),
           ],
         ),
       ),
@@ -176,29 +176,28 @@ class DonationsScreenState extends State<DonationsScreen> {
     );
   }
 
-  Widget buildButtonContinue() {
-    return Builder(
-      builder: (context) => ElevatedButton(
-        onPressed: () {
-          print("Botón Continuar presionado");
-          saveData(); // Call saveData when button is pressed
-          Navigator.pushNamed(context, '/map'); // Navigate to the next screen
-        },
-        style: ElevatedButton.styleFrom(
-          backgroundColor: const Color(0xFFDEC3BE),
-          minimumSize: const Size(150, 50),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-        ),
-        child: const Text(
-          'Continuar',
-          style: TextStyle(
-            color: Colors.white,
-            fontSize: 20,
-          ),
+Widget buildButtonContinue() {
+  return Builder(
+    builder: (context) => ElevatedButton(
+      onPressed: () {
+        print("Botón Continuar presionado");
+        Navigator.pushNamed(context, '/map');
+      },
+      style: ElevatedButton.styleFrom(
+        backgroundColor: const Color(0xFFDEC3BE),
+        minimumSize: const Size(150, 50),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
         ),
       ),
-    );
-  }
+      child: const Text(
+        'Continuar',
+        style: TextStyle(
+          color: Colors.white,
+          fontSize: 20,
+        ),
+      ),
+    ),
+  );
+}
 }

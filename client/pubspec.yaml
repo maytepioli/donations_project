@@ -41,7 +41,6 @@ dependencies:
   # donations:
   #   path: ../server/donations
   cloud_firestore: ^5.6.3
-  curved_navigation_bar: ^1.0.3
   google_sign_in: ^6.2.1
   firebase_auth: ^5.4.2
 
