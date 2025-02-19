@@ -6,16 +6,21 @@ import 'views/profile/profile.dart';
 import 'views/object/object.dart';
 import 'views/register/register.dart';
 import 'views/map/map.dart';
+import 'views/Rol/RolPage.dart';
+import 'views/donationCenter/donation_Center.dart';
 import 'package:flutter_application/views/configuration/configuration.dart';
 
 var appRoutes = {
-  '/': (context) => Home(),
+  '/': (context) => Home(
+        isCentro: false,
+      ),
   '/login': (context) => Login(),
   '/donations': (context) => DonationsScreen(),
   '/register': (context) => Register(),
   '/object': (context) => ObjectScreen(),
   '/profile': (context) => ProfileScreen(),
   '/map': (context) => MapScreen(),
-  '/configuration': (context) => ConfigurationScreen(),
+  '/rol': (context) => RoleSelectionPage(),
   '/notification': (context) => NotificationScreen(),
+  '/donations_Center': (context) => DonationCenter(),
 };
