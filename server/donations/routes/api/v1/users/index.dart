@@ -1,48 +1,58 @@
+import 'dart:io';
 import 'package:dart_frog/dart_frog.dart';
 import 'package:donations/donations.dart';
-
+import 'package:firedart/firedart.dart';
 Future<Response> onRequest(RequestContext context) async {
-  //Verificamos si es el metodo que esperamos
-  if (context.request.method != HttpMethod.post) {
-    return Response.json(
-      statusCode: 405,
-      body:{'message': 'Error, metodo no permirido'}
-      );
-  }
+  return switch(context.request.method) {
+    HttpMethod.get => _getAllUsers(context),
+    HttpMethod.post => _createUser(context),
+    _ => Future.value(Response(statusCode: HttpStatus.methodNotAllowed)),
+  };
+}
 
+Future<Response> _getAllUsers(RequestContext context) async {
   try {
-    ///Obtenemos los datos del request
+    final users = <Map<String, dynamic>>[];
+
+    await Firestore.instance.collection('users').get().then((event) {
+      for (final doc in event) {
+        users.add(doc.map);
+      }
+    });
+
+    return Response.json(body: {
+      'message': 'Users found',
+      'users': users,
+      },
+    );
+  } catch(e) {
+    return Response.json(body: {
+      'message': 'Error fetching users',
+      'error': e.toString(),
+    },
+    statusCode: HttpStatus.internalServerError,
+    );
+  }
+}
+
+Future<Response> _createUser(RequestContext context) async {
+  try {
     final body = await context.request.json();
-
-    ///Verificamos q los datos estan completos
-    if (
-        (body['name'] as String).trim().isEmpty ||
-        (body['password'] as String).trim().isEmpty ||
-        (body['email'] as String).trim().isEmpty ||
-        (body['phoneNumber'] as String).trim().isEmpty) {
-      return Response.json(
-        statusCode: 400,
-        body: {'message': 'Faltan datos'},
-        );
-    }
-
-    ///Si estan completos, es crea el user
-
     final user = User.fromJson(body as Map<String, dynamic>);
 
-    ///Agregar la logica para guardarloen la base de datos, o sea regisrarlo
+    await Firestore.instance.collection('users').add(user.toJson());
 
-    ///Retornamos q se creó con exito
-    return Response.json(
-      body: {'message': 'Usuario registrado con exito', 'user': user.name, 
-      'email': user.email, },
+    return Response.json(body: {
+      'message': 'User created',
+      'name': user.name,
+      },
     );
-
-  } catch (e) {
-    return Response.json(
-      statusCode: 400,
-      body: {'message': 'Error al registar el usuario'},
+  } catch(e) {
+    return Response.json(body: {
+      'message': 'Error creating user',
+      'error': e.toString(),
+    },
+    statusCode: HttpStatus.internalServerError,
     );
   }
-   
 }

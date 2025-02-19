@@ -5,7 +5,17 @@ import 'package:test/test.dart';
 void main() {
   group('Donations', () {
     test('can be instantiated', () {
-      expect(Donations(type: 'someType', name: 'someName'), isNotNull);
+      expect(Donations(
+        type: 'someType',
+        name: 'someName',
+        // creator: User(
+        //   name: 'someCreator',
+        //   password: 'somePassword',
+        //   email: 'someEmail',
+        //   phoneNumber: 'somePhoneNumber',
+        //   ),
+        ), isNotNull,
+      );
     });
   });
 }
