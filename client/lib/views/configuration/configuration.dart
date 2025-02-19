@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 const Color myColor = Color(0xFFDEC3BE);
 
 class ConfigurationScreen extends StatefulWidget {
-  const ConfigurationScreen({Key? key}) : super(key: key);
+  const ConfigurationScreen({super.key});
 
   @override
   _ConfigScreenState createState() => _ConfigScreenState();

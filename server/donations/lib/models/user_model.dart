@@ -1,43 +1,53 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
+import 'package:meta/meta.dart';
 import 'package:uuid/uuid.dart';
-//import 'package:meta/meta.dart';
-/// {@template donations}
-/// A very good dart package
-/// {@endtemplate}
+part 'user_model.g.dart';
+/// Clase modelo de usuario
 @JsonSerializable()
 class User extends Equatable {
-  /// {@macro donations}
-  static final Uuid _uuidGenerator = Uuid();
+  /// Constructor de la clase
   User({
-    String? uuid, 
-    required this.name, 
-    required this.password, 
-    required this.email, 
+    String? uuid,
+    required this.name,
+    required this.password,
+    required this.email,
     required this.phoneNumber,
-  }): uuid = uuid ?? _uuidGenerator.v4(), 
+  }): uuid = uuid ?? _uuidGenerator.v4(),
   assert(uuid == null || uuid.isNotEmpty, 'id cannot be empty');
-
+  /// Deserializa un json a un objeto
+  factory User.fromJson(Map<String, dynamic> json) =>
+    _$UserFromJson(json);
+  /// Generador de uuid para el usuario
+  static final Uuid _uuidGenerator = Uuid();
+  /// Identificador unico del usuario
   final String uuid;
+  /// Nombre del usuario
   final String name;
+  /// Contraseña del usuario
   final String password;
+  /// Correo electronico del usuario
   final String email;
+  /// Numero de telefono del usuario
   final String phoneNumber;
-
-  ///Metodo q convierte un json en un objeto
-  factory User.fromJson(Map<String, dynamic> json) {
+  /// Serializa un objeto a un json
+  Map<String, dynamic> toJson() => _$UserToJson(this);
+  /// Metodo copyWith
+  User copyWith({
+    String? name,
+    String? password,
+    String? email,
+    String? phoneNumber,
+  }) {
     return User(
-      uuid: json['uuid'] as String, 
-      name: json['name'] as String, 
-      password: json['password'] as String, 
-      email: json['email'] as String, 
-      phoneNumber: json['phoneNumber'] as String,
-      );
+      name: name ?? this.name,
+      password: password ?? this.password,
+      email: email ?? this.email,
+      phoneNumber: phoneNumber ?? this.phoneNumber,
+    );
   }
-
   ///Metodo para deserializar un objeto a un json
   ///Metodo para vefificar el email valido
-  ///Metodo para editar los datos del usuario
   @override
   List<Object?> get props => [uuid, name, password, email, phoneNumber];
 }

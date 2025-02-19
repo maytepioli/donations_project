@@ -14,7 +14,7 @@ class BaseScreen extends StatelessWidget {
       appBarTitleStyle; // Nuevo parámetro para el estilo del título
 
   const BaseScreen({
-    Key? key,
+    super.key,
     required this.body,
     required this.title,
     this.currentPage = 1,
