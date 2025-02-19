@@ -1,48 +1,59 @@
+import 'dart:io';
 import 'package:dart_frog/dart_frog.dart';
 import 'package:donations/donations.dart';
-
+import 'package:firedart/firedart.dart';
 Future<Response> onRequest(RequestContext context) async {
-  //Verificamos si es el metodo que esperamos
-  if (context.request.method != HttpMethod.post) {
-    return Response.json(
-      statusCode: 405,
-      body:{'message': 'Error, metodo no permirido'},
-      );
-  }
+  return switch(context.request.method) {
+    HttpMethod.get => _getAllCenters(context),
+    HttpMethod.post => _createCenter(context),
+    _ => Future.value(Response(statusCode: HttpStatus.methodNotAllowed)),
+  };
+}
 
+Future<Response> _getAllCenters(RequestContext context) async {
   try {
-    ///Obtenemos los datos del request
+    final centers = <Map<String, dynamic>>[];
+
+    await Firestore.instance.collection('centers').get().then((event) {
+      for (final doc in event) {
+        centers.add(doc.map);
+      }
+    });
+
+    return Response.json(body: {
+      'message': 'Centers found',
+      'centers': centers,
+      },
+    );
+  } catch(e) {
+    return Response.json(body: {
+      'message': 'Error fetching centers',
+      'error': e.toString(),
+    },
+      statusCode: HttpStatus.internalServerError,
+    );
+  }
+}
+
+Future<Response> _createCenter(RequestContext context) async {
+  try {
     final body = await context.request.json();
-
-    ///Verificamos q los datos estan completos
-    if (
-        (body['name'] as String).trim().isEmpty ||
-        (body['password'] as String).trim().isEmpty ||
-        (body['email'] as String).trim().isEmpty ||
-        (body['phoneNumber'] as String).trim().isEmpty) {
-      return Response.json(
-        statusCode: 400,
-        body: {'message': 'Faltan datos'},
-        );
-    }
-
-    ///Si estan completos, es crea el user
-
     final center = Center.fromJson(body as Map<String, dynamic>);
 
-    ///Agregar la logica para guardarloen la base de datos, o sea regisrarlo
+    await Firestore.instance.collection('centers').add(center.toJson());
 
-    ///Retornamos q se creó con exito
-    return Response.json(
-      body: {'message': 'Usuario registrado con exito', 'user': center.name, 
-      'email': center.email, },
+    return Response.json(body: {
+      'message': 'Center created',
+      'name': center.name,
+      'address': center.address,
+      },
     );
-
-  } catch (e) {
-    return Response.json(
-      statusCode: 400,
-      body: {'message': 'Error al registar el usuario'},
+  } catch(e) {
+    return Response.json(body: {
+      'message': 'Error creating center',
+      'error': e.toString(),
+    },
+    statusCode: HttpStatus.internalServerError,
     );
   }
-   
 }

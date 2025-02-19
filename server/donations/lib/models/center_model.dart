@@ -1,8 +1,11 @@
 import 'package:equatable/equatable.dart';
 import 'package:json_annotation/json_annotation.dart';
-import 'package:meta/meta.dart';
+// import 'package:meta/meta.dart';
 import 'package:uuid/uuid.dart';
+
 part 'center_model.g.dart';
+/// Data source - in-memory cache
+Map<String, Center> centerDb = {};
 /// Clase modelo de centro
 @JsonSerializable()
 class Center extends Equatable {
@@ -15,9 +18,11 @@ class Center extends Equatable {
     required this.email,
   }): uuid = uuid ?? _uuidGenerator.v4(),
     assert(uuid == null || uuid.isNotEmpty, 'id cannot be empty');
+
   /// Deserializa un json a un objeto
-  factory Center.fromJson(Map<String, dynamic> json) =>
+  factory Center.fromJson(Map<String, dynamic> json) => 
     _$CenterFromJson(json);
+  
   /// Generador de uuid para el centro
   static final Uuid _uuidGenerator = Uuid();
   /// Identificador unico del centro
@@ -30,8 +35,10 @@ class Center extends Equatable {
   final String phoneNumber;
   /// Correo electronico del centro
   final String email;
+
   /// Serializa un objeto a un json
   Map<String, dynamic> toJson() => _$CenterToJson(this);
+
   @override
   List<Object?> get props => [uuid, name, address, phoneNumber, email];
 }
