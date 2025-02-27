@@ -1,74 +1,50 @@
-import 'dart:io';
 import 'package:dart_frog/dart_frog.dart';
 import 'package:donations/donations.dart';
-import 'package:firedart/firedart.dart';
 
-
-Future<Response> onRequest(RequestContext context) async{
-  return switch(context.request.method){
-    HttpMethod.post => _createDonation(context),
-    HttpMethod.get => _getAllDonations(context),
-    _ => Future.value(Response(statusCode: HttpStatus.methodNotAllowed)),
-  };
-}
-Future<Response> _getAllDonations(RequestContext context) async {
-  try {
-    final donations = <Map<String, dynamic>>[];
-
-    await Firestore.instance.collection('donations').get().then((event) {
-      for (final doc in event) {
-        donations.add(doc.map);
-      }
-    });
-
-    return Response.json(body: {
-      'message': 'Donations found', 
-      'donations': donations,
-      },
-    );
-  } catch(e) {
-    return Response.json(body: {
-      'message': 'Error fetching donations',
-      'error': e.toString(),
-    },
-      statusCode: HttpStatus.internalServerError,
+Future<Response> onRequest(RequestContext context) async {
+  if (context.request.method != HttpMethod.post) {
+    return Response.json(
+      statusCode: 405,
+      body: {'message': 'Método incorrecto'},
     );
   }
-}
 
-Future<Response> _createDonation(RequestContext context) async {
   try {
+    /// Obtenemos los datos de la solicitud
     final body = await context.request.json();
-    // final donationData = Donations.fromJson(body as Map<String, dynamic>);
 
-    // final user = context.read<User?>();
+    /// Verificación de datos
+    if ((body['type'] as String).trim().isEmpty ||
+        (body['name'] as String).trim().isEmpty ||
+        (body['description'] as String).trim().isEmpty) {
+      return Response.json(
+        statusCode: 400,
+        body: {'message': 'Faltan datos'},
+      );
+    }
 
-    // if (user == null) {
-    //   return Response.json(
-    //     body: {'message': 'Usuario no autenticado'},
-    //     statusCode: HttpStatus.unauthorized,
-    //   );
-    // }
-
-    // donationData.creator = user.toJson() as User;
-    
-    // final donation = user.addDonation(donationData.toJson());
-
+    /// Creamos una instancia de la donación
     final donation = Donations.fromJson(body as Map<String, dynamic>);
-    await Firestore.instance.collection('donations').add(donation.toJson());
 
-    return Response.json(body: {
-      'message': 'Donation created',
-      'name': donation.name,
-      'type': donation.type,
+    /// Retornamos la instancia creada (sin guardar en la base de datos)
+    return Response.json(
+      statusCode: 201,
+      body: {
+        'message': 'Donación creada con éxito',
+        'uuid': donation.uuid,
+        'type': donation.type,
+        'name': donation.name,
+        'description': donation.description,
+        'creationDate': donation.creationDate.toIso8601String(),
       },
     );
-  } catch(e) {
-    return Response.json(body: {
-      'message': 'Error creating donation',
-      'error': e.toString(),
-    },
-    statusCode: HttpStatus.internalServerError,
+  } catch (e) {
+    return Response.json(
+      statusCode: 400,
+      body: {
+        'message': 'Error al crear la donación',
+        'error': e.toString(),
+      },
     );
   }
 }

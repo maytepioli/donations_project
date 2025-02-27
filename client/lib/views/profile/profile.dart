@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 const Color myColor = Color(0xFFDEC3BE);
 
@@ -15,6 +16,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
       TextEditingController(text: 'Juan Pérez');
   final TextEditingController _phoneController = TextEditingController();
   int donationsCount = 5;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  void _loadUserData() {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      setState(() {
+        profileImageUrl = user.photoURL ?? ''; // Get Google profile pic
+        _nameController.text = user.displayName ?? 'Juan Pérez';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -69,9 +86,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
     return CircleAvatar(
       radius: 50,
       backgroundColor: myColor,
+      backgroundImage: profileImageUrl.isNotEmpty
+          ? NetworkImage(profileImageUrl)
+          : null, // Load image if available
       child: profileImageUrl.isEmpty
           ? const Icon(Icons.person, size: 50, color: Colors.white)
-          : ClipOval(child: Image.network(profileImageUrl, fit: BoxFit.cover)),
+          : null, // Hide icon when image is loaded
     );
   }
 

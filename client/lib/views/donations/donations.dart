@@ -1,5 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DonationsScreen extends StatefulWidget {
   const DonationsScreen({super.key});
@@ -45,8 +49,7 @@ class DonationsScreenState extends State<DonationsScreen> {
             const SizedBox(height: 24),
             descriptionInput(_descriptionController),
             const SizedBox(height: 24),
-            buildButtonContinue(
-              /*  _titleController, _descriptionController, context*/),
+            buildButtonContinue(),
           ],
         ),
       ),
@@ -80,20 +83,92 @@ class DonationsScreenState extends State<DonationsScreen> {
   }
 
   // Save the title and description when "Continuar" is pressed
-  void saveData() {
-    print('Saved data:');
-    print('Type: $donationType');
-    print('Title: $title');
-    print('Description: $description');
-    // You can store the data in any format you want here. For example:
-    Map<String, String> donationData = {
+ void saveData() async {
+  if (title.isEmpty || description.isEmpty) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Por favor, ingresa todos los campos')),
+    );
+    return;
+  }
+
+  User? user = FirebaseAuth.instance.currentUser;
+  if (user == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Por favor, inicia sesión')),
+    );
+    return;
+  }
+
+  String userId = user.uid;
+  print("User logged in: $userId");
+
+  // Mostrar diálogo de carga
+  showDialog(
+    context: context,
+    barrierDismissible: false,
+    builder: (context) => const AlertDialog(
+      content: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          CircularProgressIndicator(),
+          SizedBox(height: 16),
+          Text('Guardando donación...')
+        ],
+      ),
+    ),
+  );
+
+  try {
+    // Crear el documento en Firebase
+    var docRef = await FirebaseFirestore.instance
+        .collection('users')
+        .doc(userId)
+        .collection('donations')
+        .add({
+      "userId": userId,
       "type": donationType ?? "No type",
       "title": title,
       "description": description,
+      "estado": 0, // No asignado a un centro aún
+      "createdAt": DateTime.now().toIso8601String(),
+    });
+
+    String donationId = docRef.id;  // Obtener ID del documento generado por Firebase
+
+    // Datos de la donación con el ID incluido
+    Map<String, dynamic> donationData = {
+      "donationId": donationId,
+      "userId": userId,
+      "type": donationType ?? "No type",
+      "title": title,
+      "description": description,
+      "estado": 0,
+      "createdAt": DateTime.now().toIso8601String(),
     };
 
-    // ACA FALTA HACER ALGO CON DONATION DATA 
+    // Guardar en SharedPreferences
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString('lastDonation', jsonEncode(donationData));
+
+    Navigator.pop(context); // Cerrar el diálogo de carga
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Donación guardada con éxito')),
+    );
+
+    // Navegar a /map después de un breve retraso
+    Future.delayed(const Duration(milliseconds: 500), () {
+      Navigator.pushNamed(context, '/map');
+    });
+  } catch (e) {
+    Navigator.pop(context); // Cerrar el diálogo en caso de error
+    print('Error saving donation: $e');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Error al guardar la donación: $e')),
+    );
   }
+}
+
 
   Widget titleInput(TextEditingController controller) {
     return Column(
@@ -176,28 +251,28 @@ class DonationsScreenState extends State<DonationsScreen> {
     );
   }
 
-Widget buildButtonContinue() {
-  return Builder(
-    builder: (context) => ElevatedButton(
-      onPressed: () {
-        print("Botón Continuar presionado");
-        Navigator.pushNamed(context, '/map');
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFFDEC3BE),
-        minimumSize: const Size(150, 50),
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+  Widget buildButtonContinue() {
+    return Builder(
+      builder: (context) => ElevatedButton(
+        onPressed: () {
+          print("Botón Continuar presionado");
+          saveData(); // Save data when button is pressed
+        },
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFFDEC3BE),
+          minimumSize: const Size(150, 50),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(20),
+          ),
+        ),
+        child: const Text(
+          'Continuar',
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20,
+          ),
         ),
       ),
-      child: const Text(
-        'Continuar',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 20,
-        ),
-      ),
-    ),
-  );
-}
+    );
+  }
 }

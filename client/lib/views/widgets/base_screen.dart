@@ -1,17 +1,26 @@
 import 'package:flutter/material.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 
-const Color myColor = Color(0xFFDEC3BE);
 
-class BaseScreen extends StatelessWidget {
+
+const Color myColor = Color(0xffea638c);
+
+class BaseScreen extends StatefulWidget {
   final Widget body;
   final String title;
   final int currentPage;
   final ValueChanged<int>? onBottomNavTap;
   final bool showAppBarActions;
-  final List<Widget>? bottomNavItems;
-  final TextStyle?
-      appBarTitleStyle; // Nuevo parámetro para el estilo del título
+  final List<IconData>? bottomNavIcons;
+  final TextStyle? appBarTitleStyle;
+  final Color? appBarBackgroundColor;
+  final double appBarElevation;
+  final Color? appBarShadowColor;
+  final Color? appBarSurfaceTintColor;
+  final IconThemeData? appBarIconTheme;
 
   const BaseScreen({
     Key? key,
@@ -20,140 +29,165 @@ class BaseScreen extends StatelessWidget {
     this.currentPage = 1,
     this.onBottomNavTap,
     this.showAppBarActions = true,
-    this.bottomNavItems,
-    this.appBarTitleStyle, // Recibe el estilo personalizado si se desea
+    this.bottomNavIcons,
+    this.appBarTitleStyle,
+    this.appBarBackgroundColor,
+    this.appBarElevation = 0,
+    this.appBarShadowColor,
+    this.appBarSurfaceTintColor,
+    this.appBarIconTheme,
   }) : super(key: key);
 
   @override
+  _BaseScreenState createState() => _BaseScreenState();
+}
+
+class _BaseScreenState extends State<BaseScreen> {
+  String profileImageUrl = '';
+  String profileName = '';
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  void _loadUserData() {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      setState(() {
+        profileImageUrl = user.photoURL ?? '';
+        profileName = user.displayName ?? 'Juan Pérez';
+      });
+    }
+  }
+
+  List<Widget> _buildNavItems() {
+    final icons = widget.bottomNavIcons ?? [Icons.home, Icons.add, Icons.map_outlined];
+    return List<Widget>.generate(icons.length, (index) {
+      return index == widget.currentPage
+          ? Container(
+              padding: const EdgeInsets.all(8),
+              decoration: const BoxDecoration(
+                color: myColor,
+                shape: BoxShape.circle,
+              ),
+              child: Icon(icons[index], size: 30, color: Colors.white),
+            )
+          : Icon(icons[index], size: 30, color: Colors.black);
+    });
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // Si no se pasa lista, usamos la lista por defecto.
-    final items = bottomNavItems ??
-        const <Widget>[
-          Icon(Icons.home, size: 30, color: Colors.black),
-          Icon(Icons.add, size: 30, color: Colors.black),
-          Icon(Icons.map_outlined, size: 30, color: Colors.black),
-        ];
+    final items = _buildNavItems();
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          title,
-          style: appBarTitleStyle ??
-              const TextStyle(
+          widget.title,
+          style: widget.appBarTitleStyle ??
+              GoogleFonts.amaticSc(
                 color: Colors.black,
                 fontSize: 24,
-                fontWeight: FontWeight.bold,
+                fontWeight: FontWeight.normal,
               ),
         ),
-        backgroundColor: Colors.white,
-        elevation: 0,
+        backgroundColor: widget.appBarBackgroundColor ?? Colors.white,
+        elevation: widget.appBarElevation,
+        shadowColor: widget.appBarShadowColor,
+        surfaceTintColor: widget.appBarSurfaceTintColor,
         centerTitle: true,
-        actions: showAppBarActions
+        iconTheme: widget.appBarIconTheme ?? const IconThemeData(color: myColor),
+        actions: widget.showAppBarActions
             ? [
-                // Botón de notificaciones
-                Builder(
-                  builder: (BuildContext context) {
-                    return IconButton(
-                      icon:
-                          const Icon(Icons.notifications, color: Colors.black),
-                      onPressed: () {
-                        print('Notificaciones pressed');
-                        Navigator.pushNamed(context, '/notification');
-                      },
-                    );
+                IconButton(
+                  icon: const Icon(Icons.notifications, color: myColor),
+                  onPressed: () {
+                    Navigator.pushNamed(context, '/notification');
                   },
-                ),
-                // Botón de perfil
-                Builder(
-                  builder: (context) => IconButton(
-                    icon: const Icon(Icons.account_circle, color: Colors.black),
-                    onPressed: () {
-                      Scaffold.of(context).openDrawer();
-                    },
-                  ),
                 ),
               ]
             : null,
       ),
-      drawer: showAppBarActions ? _buildSideMenu(context) : null,
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: body,
-      ),
+      drawer: widget.showAppBarActions ? _buildSideMenu(context) : null,
+      body: Padding(padding: const EdgeInsets.all(16.0), child: widget.body),
       bottomNavigationBar: CurvedNavigationBar(
-        index: currentPage,
+        index: widget.currentPage,
         height: 60.0,
         items: items,
-        color: myColor,
-        buttonBackgroundColor: myColor,
+        color: Colors.white,
+        buttonBackgroundColor: Colors.white,
         backgroundColor: Colors.white,
         animationCurve: Curves.easeInOut,
         animationDuration: const Duration(milliseconds: 300),
-        onTap: onBottomNavTap,
+        onTap: widget.onBottomNavTap,
       ),
     );
   }
-}
 
-Widget _buildSideMenu(BuildContext context) {
-  return Drawer(
-    child: ListView(
-      padding: EdgeInsets.zero,
-      children: <Widget>[
-        DrawerHeader(
-          decoration: const BoxDecoration(
-            color: myColor,
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: const [
-              CircleAvatar(
-                radius: 30,
-                backgroundImage: AssetImage('assets/images/perfil.jpg'),
-              ),
-              SizedBox(height: 10),
-              Text(
-                'Nombre del Usuario',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 18,
+  Widget _buildSideMenu(BuildContext context) {
+    return Drawer(
+      child: Column(
+        children: <Widget>[
+          DrawerHeader(
+            decoration: const BoxDecoration(color: Colors.white),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 30,
+                  backgroundImage: profileImageUrl.isNotEmpty
+                      ? NetworkImage(profileImageUrl)
+                      : const AssetImage('assets/images/perfil.jpg') as ImageProvider,
                 ),
-              ),
-            ],
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Text(
+                    profileName,
+                    style: GoogleFonts.roboto(color: myColor, fontSize: 18),
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ],
+            ),
           ),
-        ),
-        // Opción de Perfil
-        ListTile(
-          leading: const Icon(Icons.person),
-          title: const Text('Perfil'),
-          onTap: () {
-            Navigator.pop(context);
-            Navigator.pushNamed(context, '/profile');
-          },
-        ),
-        // Nueva opción: Donaciones (Regalos)
-        ListTile(
-          leading: const Icon(Icons.card_giftcard),
-          title: const Text('Donaciones'),
-          onTap: () {
-            Navigator.pop(context);
-            Navigator.pushNamed(
-                context, '/gifts'); // Asegúrate de definir esta ruta
-          },
-        ),
-        // Nueva opción: Cerrar Sesión
-        ListTile(
-          leading: const Icon(Icons.logout),
-          title: const Text('Cerrar Sesión'),
-          onTap: () {
-            Navigator.pop(context);
-            // Aquí puedes agregar la lógica para cerrar sesión.
-            // Por ejemplo:
-            // AuthService.logout();
-            Navigator.pushReplacementNamed(context, '/login');
-          },
-        ),
-      ],
-    ),
-  );
+          Expanded(
+            child: ListView(
+              padding: EdgeInsets.zero,
+              children: <Widget>[
+                ListTile(
+                  leading: const Icon(Icons.person, color: myColor),
+                  title: Text('Perfil', style: GoogleFonts.roboto(fontSize: 16, color: Colors.black)),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushNamed(context, '/profile');
+                  },
+                ),
+                ListTile(
+                  leading: const Icon(Icons.card_giftcard, color: myColor),
+                  title: Text('Donaciones', style: GoogleFonts.roboto(fontSize: 16, color: Colors.black)),
+                  onTap: () {
+                    Navigator.pop(context);
+                    Navigator.pushNamed(context, '/status_donation');
+                  },
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 20.0),
+            child: ListTile(
+              leading: const Icon(Icons.logout, color: myColor),
+              title: Text('Cerrar Sesión', style: GoogleFonts.roboto(fontSize: 16, color: Colors.black)),
+              onTap: () {
+                GoogleSignIn().signOut();
+                Navigator.pop(context);
+                Navigator.pushReplacementNamed(context, '/login');
+              },
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }
