@@ -10,7 +10,7 @@ void main() async {
   } catch (e) {
     print("⚠️ Error al conectar Firebase: $e");
   }
-  runApp(MyApp());
+  runApp(const MyApp());
 }
 
 class MyApp extends StatelessWidget {
@@ -23,7 +23,7 @@ class MyApp extends StatelessWidget {
       title: 'Donations',
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(
-          seedColor: Color.fromARGB(255, 215, 222, 230),
+          seedColor: const Color.fromARGB(255, 215, 222, 230),
         ),
         useMaterial3: true,
       ),

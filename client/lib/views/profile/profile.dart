@@ -1,98 +1,101 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-const Color myColor = Color(0xFFDEC3BE);
+const Color myColor = Color(0xFF9D4EDD);
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  const ProfileScreen({Key? key}) : super(key: key);
 
   @override
-  _ProfileScreenState createState() => _ProfileScreenState();
+  ProfileScreenState createState() => ProfileScreenState();
 }
 
-class _ProfileScreenState extends State<ProfileScreen> {
-  String profileImageUrl = '';
+class ProfileScreenState extends State<ProfileScreen> {
+  // Controladores (campos no editables)
   final TextEditingController _nameController =
       TextEditingController(text: 'Juan Pérez');
-  final TextEditingController _phoneController = TextEditingController();
-  int donationsCount = 5;
+  final TextEditingController _phoneController =
+      TextEditingController(text: '+1 555 123 4567');
+
+  // URL de imagen de perfil (si está vacía se muestra un ícono)
+  String profileImageUrl = '';
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Perfil',
-          style: TextStyle(
+          style: GoogleFonts.amaticSc(
             color: Colors.black,
             fontSize: 24,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.normal,
           ),
         ),
-        backgroundColor: Colors.white,
-        elevation: 0,
         centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 10,
+        shadowColor: Colors.black.withOpacity(0.5),
+        surfaceTintColor: Colors.transparent,
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
-      backgroundColor: Colors.grey[200],
+      backgroundColor: Colors.white,
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           children: [
+            const SizedBox(height: 20),
             _buildProfilePicture(),
-            const SizedBox(height: 24),
-            _buildDonationCard(),
-            const SizedBox(height: 24),
-            Card(
-              elevation: 8,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(16),
-              ),
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: [
-                    _buildNameField(),
-                    const SizedBox(height: 16),
-                    _buildPhoneField(),
-                    const SizedBox(height: 40),
-                    _buildSaveButton(),
-                  ],
-                ),
-              ),
-            ),
+            const SizedBox(height: 20),
+            _buildInfoCard(),
           ],
         ),
       ),
     );
   }
 
+  // Construye la foto de perfil
   Widget _buildProfilePicture() {
     return CircleAvatar(
-      radius: 50,
-      backgroundColor: myColor,
+      radius: 70,
+      backgroundColor: Colors.white,
       child: profileImageUrl.isEmpty
-          ? const Icon(Icons.person, size: 50, color: Colors.white)
-          : ClipOval(child: Image.network(profileImageUrl, fit: BoxFit.cover)),
+          ? Icon(
+              Icons.person,
+              size: 70,
+              color: myColor,
+            )
+          : ClipOval(
+              child: Image.network(
+                profileImageUrl,
+                fit: BoxFit.cover,
+                width: 140,
+                height: 140,
+              ),
+            ),
     );
   }
 
-  Widget _buildDonationCard() {
+  // Tarjeta que muestra Nombre y Teléfono
+  Widget _buildInfoCard() {
     return Card(
-      color: myColor,
+      elevation: 4,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
       ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 24.0),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            const Text(
-              'Donaciones',
-              style: TextStyle(color: Colors.white, fontSize: 18),
+            _buildReadOnlyField(
+              label: 'Nombre',
+              controller: _nameController,
             ),
-            Text(
-              '$donationsCount',
-              style: const TextStyle(color: Colors.white, fontSize: 18),
+            const SizedBox(height: 16),
+            _buildReadOnlyField(
+              label: 'Teléfono',
+              controller: _phoneController,
             ),
           ],
         ),
@@ -100,36 +103,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
     );
   }
 
-  Widget _buildNameField() {
-    return TextFormField(
-      controller: _nameController,
-      decoration: const InputDecoration(
-        labelText: 'Nombre',
-        border: OutlineInputBorder(),
-      ),
-    );
-  }
-
-  Widget _buildPhoneField() {
-    return TextFormField(
-      controller: _phoneController,
-      decoration: const InputDecoration(
-        labelText: 'Teléfono',
-        border: OutlineInputBorder(),
-      ),
-    );
-  }
-
-  Widget _buildSaveButton() {
-    return ElevatedButton(
-      onPressed: () {
-        print('Guardar cambios');
-      },
-      style: ElevatedButton.styleFrom(
-        backgroundColor: myColor,
-        minimumSize: const Size.fromHeight(50),
-      ),
-      child: const Text('Guardar cambios'),
+  // Campo de texto de solo lectura
+  Widget _buildReadOnlyField({
+    required String label,
+    required TextEditingController controller,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          label,
+          style: GoogleFonts.amaticSc(
+            fontSize: 20,
+            fontWeight: FontWeight.normal,
+          ),
+        ),
+        const SizedBox(height: 4),
+        TextFormField(
+          controller: controller,
+          readOnly: true,
+          style: GoogleFonts.poppins(fontWeight: FontWeight.normal),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.grey[100],
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.transparent),
+            ),
+            enabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.transparent),
+            ),
+            disabledBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(12),
+              borderSide: const BorderSide(color: Colors.transparent),
+            ),
+          ),
+        ),
+      ],
     );
   }
 }

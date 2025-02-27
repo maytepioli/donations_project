@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+const Color myColor = Color(0xFF9D4EDD);
 
 class DonationCenter extends StatelessWidget {
   const DonationCenter({super.key});
@@ -35,9 +38,22 @@ class DonationCenter extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Donations Center'),
-        backgroundColor: const Color(0xFFDEC3BE),
+        title: Text(
+          'Donations Center',
+          style: GoogleFonts.amaticSc(
+            color: Colors.black,
+            fontSize: 24,
+            fontWeight: FontWeight.normal,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 10,
+        shadowColor: Colors.black.withOpacity(0.5),
+        surfaceTintColor: Colors.transparent,
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
+      backgroundColor: Colors.white,
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: donationList.length,
@@ -53,30 +69,43 @@ class DonationCenter extends StatelessWidget {
                 children: [
                   Text(
                     '${donation['category']} - ${donation['item']}',
-                    style: const TextStyle(
+                    style: GoogleFonts.amaticSc(
                       fontSize: 18,
-                      fontWeight: FontWeight.bold,
+                      fontWeight: FontWeight.normal,
                     ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Cantidad: ${donation['amount']}',
-                    style: const TextStyle(fontSize: 16),
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.normal,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Donante: ${donation['donor']}',
-                    style: const TextStyle(fontSize: 16),
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.normal,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     'Fecha: ${donation['date']}',
-                    style: const TextStyle(fontSize: 14, color: Colors.grey),
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      fontWeight: FontWeight.normal,
+                      color: Colors.grey,
+                    ),
                   ),
                   const SizedBox(height: 8),
                   Text(
                     donation['message'],
-                    style: const TextStyle(fontSize: 14),
+                    style: GoogleFonts.poppins(
+                      fontSize: 14,
+                      fontWeight: FontWeight.normal,
+                    ),
                   ),
                 ],
               ),

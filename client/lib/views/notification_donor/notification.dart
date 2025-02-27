@@ -1,6 +1,40 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 
-const Color myColor = Color(0xFFDEC3BE);
+void main() {
+  runApp(const MyApp());
+}
+
+const Color myColor = Color(0xFF9D4EDD);
+
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      title: 'Notification Demo',
+      theme: ThemeData(
+        useMaterial3:
+            false, // Desactiva Material 3 para evitar tintes adicionales
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.white,
+          surfaceTintColor: Colors.transparent, // Evita el tinte oscuro
+          elevation: 10,
+          shadowColor: Colors.black54,
+          iconTheme: const IconThemeData(color: Colors.black),
+          titleTextStyle: GoogleFonts.amaticSc(
+            color: Colors.black,
+            fontSize: 24,
+            fontWeight: FontWeight.normal, // Sin negrita
+          ),
+        ),
+      ),
+      home: NotificationScreen(),
+    );
+  }
+}
 
 class NotificationScreen extends StatelessWidget {
   NotificationScreen({super.key});
@@ -19,19 +53,22 @@ class NotificationScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
+        title: Text(
           'Notificaciones',
-          style: TextStyle(
+          style: GoogleFonts.amaticSc(
             color: Colors.black,
             fontSize: 24,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.normal, // Sin negrita
           ),
         ),
-        backgroundColor: Colors.white,
         centerTitle: true,
-        elevation: 0,
+        backgroundColor: Colors.white,
+        elevation: 10,
+        shadowColor: Colors.black.withOpacity(0.5),
+        surfaceTintColor: Colors.transparent,
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
-      backgroundColor: Colors.grey[200],
+      backgroundColor: Colors.white,
       body: ListView.builder(
         padding: const EdgeInsets.all(16),
         itemCount: notifications.length,
@@ -47,14 +84,12 @@ class NotificationScreen extends StatelessWidget {
 class NotificationItem {
   final String id;
   final String message;
-
   NotificationItem({required this.id, required this.message});
 }
 
 // Widget que representa cada notificación como una burbuja con botones
 class NotificationBubble extends StatelessWidget {
   final NotificationItem notification;
-
   const NotificationBubble({super.key, required this.notification});
 
   @override
@@ -72,9 +107,9 @@ class NotificationBubble extends StatelessWidget {
           children: [
             Text(
               notification.message,
-              style: const TextStyle(
+              style: GoogleFonts.poppins(
                 fontSize: 16,
-                fontWeight: FontWeight.w500,
+                fontWeight: FontWeight.normal, // Sin negrita
               ),
             ),
             const SizedBox(height: 16),
@@ -86,9 +121,13 @@ class NotificationBubble extends StatelessWidget {
                     // Lógica para rechazar la notificación
                     print('Rechazar notificación: ${notification.id}');
                   },
-                  child: const Text(
+                  child: Text(
                     'Rechazar',
-                    style: TextStyle(color: Colors.red),
+                    style: GoogleFonts.poppins(
+                      color: myColor,
+                      fontSize: 16,
+                      fontWeight: FontWeight.normal, // Sin negrita
+                    ),
                   ),
                 ),
                 const SizedBox(width: 8),
@@ -98,12 +137,17 @@ class NotificationBubble extends StatelessWidget {
                     print('Aceptar notificación: ${notification.id}');
                   },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: myColor,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text('Aceptar'),
+                  child: Text(
+                    'Aceptar',
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.normal, // Sin negrita
+                    ),
+                  ),
                 ),
               ],
             ),

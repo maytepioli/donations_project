@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:curved_navigation_bar/curved_navigation_bar.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_application/views/widgets/base_screen.dart';
+
+const Color myColor = Color(0xFF9D4EDD);
 
 class DonationsScreen extends StatefulWidget {
   const DonationsScreen({super.key});
@@ -10,32 +13,36 @@ class DonationsScreen extends StatefulWidget {
 
 class DonationsScreenState extends State<DonationsScreen> {
   int _page = 1;
-  
-  String? donationType;  // Variable to store donation type
-  String title = '';      // Variable to store title
-  String description = ''; // Variable to store description
+  String? donationType; // Almacena el tipo de donación recibido como argumento
+  String title = ''; // Título ingresado
+  String description = ''; // Descripción ingresada
   final TextEditingController _titleController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
-    // Get the donation type passed via arguments (optional)
     donationType = ModalRoute.of(context)?.settings.arguments as String?;
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(
-          'Donaciones - ${donationType ?? "error no se manda argumento"}',
-          style: TextStyle(
-            color: Colors.black,
-            fontSize: 24,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
-        backgroundColor: Colors.white,
-        elevation: 0,
-        centerTitle: true,
-      ),
+    return BaseScreen(
+      title: 'Donaciones - ${donationType ?? "No argumento"}',
+      appBarBackgroundColor: Colors.white,
+      appBarElevation: 10,
+      appBarShadowColor: Colors.black.withOpacity(0.5),
+      appBarSurfaceTintColor: Colors.transparent,
+      appBarIconTheme: const IconThemeData(color: Colors.black),
+      currentPage: _page,
+      showAppBarActions: false,
+      onBottomNavTap: (index) {
+        if (index == 0) {
+          Navigator.pushNamed(context, '/');
+        } else if (index == 1) {
+          Navigator.pushNamed(context, '/object');
+        } else if (index == 2) {
+          Navigator.pushNamed(context, '/map');
+        }
+        setState(() {
+          _page = index;
+        });
+      },
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -45,92 +52,45 @@ class DonationsScreenState extends State<DonationsScreen> {
             const SizedBox(height: 24),
             descriptionInput(_descriptionController),
             const SizedBox(height: 24),
-            buildButtonContinue(
-              /*  _titleController, _descriptionController, context*/),
+            buildButtonContinue(),
           ],
         ),
       ),
-      bottomNavigationBar: CurvedNavigationBar(
-        index: _page,
-        height: 60.0,
-        items: const <Widget>[
-          Icon(Icons.home, size: 30, color: Colors.black),
-          Icon(Icons.add, size: 30, color: Colors.black),
-          Icon(Icons.map_outlined, size: 30, color: Colors.black),
-        ],
-        color: const Color(0xFFDEC3BE),
-        buttonBackgroundColor: const Color(0xFFDEC3BE),
-        backgroundColor: Colors.white,
-        animationCurve: Curves.easeInOut,
-        animationDuration: const Duration(milliseconds: 300),
-        onTap: (index) {
-          if (index == 0) {
-            Navigator.pushNamed(context, '/');
-          } else if (index == 1) {
-            Navigator.pushNamed(context, '/object');
-          } else if (index == 2) {
-            Navigator.pushNamed(context, '/map');
-          }
-          setState(() {
-            _page = index;
-          });
-        },
-      ),
     );
-  }
-
-  // Save the title and description when "Continuar" is pressed
-  void saveData() {
-    print('Saved data:');
-    print('Type: $donationType');
-    print('Title: $title');
-    print('Description: $description');
-    // You can store the data in any format you want here. For example:
-    Map<String, String> donationData = {
-      "type": donationType ?? "No type",
-      "title": title,
-      "description": description,
-    };
-
-    // ACA FALTA HACER ALGO CON DONATION DATA 
   }
 
   Widget titleInput(TextEditingController controller) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Título',
-          style: TextStyle(
+          style: GoogleFonts.amaticSc(
             fontSize: 22,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.normal,
           ),
         ),
         const SizedBox(height: 10),
         Container(
-          width: double.infinity,
+          padding: const EdgeInsets.all(16),
           height: 60,
           decoration: BoxDecoration(
-            color: const Color(0xFFDEC3BE),
-            borderRadius: BorderRadius.circular(16),
+            color: Colors.grey[200],
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(color: Colors.grey),
           ),
           child: TextField(
             onChanged: (value) {
               setState(() {
-                title = value; // Save the title as user types
+                title = value;
               });
             },
             controller: controller,
-            decoration: InputDecoration(
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.normal,
+            ),
+            decoration: const InputDecoration.collapsed(
               hintText: 'Escribe el título aquí',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(16),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding:
-                  const EdgeInsets.symmetric(horizontal: 20, vertical: 18),
-              filled: true,
-              fillColor: const Color(0xFFDEC3BE),
             ),
           ),
         ),
@@ -142,11 +102,11 @@ class DonationsScreenState extends State<DonationsScreen> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Descripción',
-          style: TextStyle(
+          style: GoogleFonts.amaticSc(
             fontSize: 22,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.normal,
           ),
         ),
         const SizedBox(height: 10),
@@ -161,10 +121,13 @@ class DonationsScreenState extends State<DonationsScreen> {
           child: TextField(
             onChanged: (value) {
               setState(() {
-                description = value; // Save the description as user types
+                description = value;
               });
             },
             controller: controller,
+            style: GoogleFonts.poppins(
+              fontWeight: FontWeight.normal,
+            ),
             maxLines: null,
             expands: true,
             decoration: const InputDecoration.collapsed(
@@ -176,28 +139,26 @@ class DonationsScreenState extends State<DonationsScreen> {
     );
   }
 
-Widget buildButtonContinue() {
-  return Builder(
-    builder: (context) => ElevatedButton(
+  Widget buildButtonContinue() {
+    return ElevatedButton(
       onPressed: () {
-        print("Botón Continuar presionado");
         Navigator.pushNamed(context, '/map');
       },
       style: ElevatedButton.styleFrom(
-        backgroundColor: const Color(0xFFDEC3BE),
+        backgroundColor: myColor,
         minimumSize: const Size(150, 50),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
         ),
       ),
-      child: const Text(
+      child: Text(
         'Continuar',
-        style: TextStyle(
+        style: GoogleFonts.poppins(
           color: Colors.white,
           fontSize: 20,
+          fontWeight: FontWeight.normal,
         ),
       ),
-    ),
-  );
-}
+    );
+  }
 }

@@ -10,59 +10,66 @@ class MapScreen extends StatefulWidget {
 class _MapScreenState extends State<MapScreen> {
   String? selectedCenter;
   bool isLoading = false;
+  final TextEditingController _searchController = TextEditingController();
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Seleccionar Centro'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Text(
-              'Seleccione un Centro de Donación',
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                setState(() {
-                  selectedCenter = "Centro Ejemplo"; // Simulación de selección
-                });
-              },
-              child: const Text("Seleccionar Centro"),
-            ),
-            const SizedBox(height: 20),
-            if (selectedCenter != null)
-              Text(
-                'Centro seleccionado: $selectedCenter',
-                style:
-                    const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+      body: Stack(
+        children: [
+          // Mapa de fondo (placeholder para la API de Google Maps)
+          Container(
+            width: double.infinity,
+            height: double.infinity,
+            color: Colors.grey[300],
+            child: const Center(
+              child: Text(
+                'Mapa de Google Maps (placeholder)',
+                style: TextStyle(fontSize: 18),
               ),
-            const SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: selectedCenter == null || isLoading ? null : () {},
-              style: ElevatedButton.styleFrom(
-                backgroundColor: selectedCenter == null
-                    ? Colors.grey
-                    : const Color(0xFFDEC3BE),
-                minimumSize: const Size(200, 50),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+            ),
+          ),
+          // Buscador posicionado en la parte inferior con bordes más redondeados
+          Positioned(
+            left: 16,
+            right: 16,
+            bottom: 16,
+            child: Card(
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(30),
+              ),
+              child: Padding(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                child: Row(
+                  children: [
+                    const Icon(Icons.search, color: Colors.grey),
+                    const SizedBox(width: 10),
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        decoration: const InputDecoration(
+                          hintText: 'Buscar centros',
+                          border: InputBorder.none,
+                        ),
+                        onChanged: (value) {
+                          // Implementa la lógica de búsqueda según tus necesidades
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               ),
-              child: isLoading
-                  ? const CircularProgressIndicator(color: Colors.white)
-                  : const Text(
-                      'Crear Donación',
-                      style: TextStyle(fontSize: 20, color: Colors.white),
-                    ),
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
