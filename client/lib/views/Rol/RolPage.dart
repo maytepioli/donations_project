@@ -1,8 +1,12 @@
+import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter_application/views/home/home.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter_application/views/home/home.dart';
 
+/// Definición de myColor: #ea638c
+const Color myColor = Color(0xFF9D4EDD);
 
 void main() {
   runApp(const MyApp());
@@ -18,77 +22,126 @@ class MyApp extends StatelessWidget {
       initialRoute: '/',
       routes: {
         '/': (context) => const RoleSelectionPage(),
-        // Otras rutas pueden definirse aquí.
       },
     );
   }
 }
 
-/// Pantalla para seleccionar el rol: Centro o Donador.
+/// Pantalla para seleccionar el rol: Centro o Donador, con estética moderna.
 class RoleSelectionPage extends StatelessWidget {
   const RoleSelectionPage({super.key});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Selecciona tu Rol")),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-              onPressed: () {
-                // Navega al formulario para Centros.
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const CenterFormPage(),
+      appBar: AppBar(
+        title: Text(
+          "Selecciona tu Rol",
+          style: GoogleFonts.amaticSc(
+            color: Colors.black,
+            fontSize: 24,
+            fontWeight: FontWeight.normal,
+          ),
+        ),
+        backgroundColor: Colors.white,
+        elevation: 2,
+      ),
+      body: SingleChildScrollView(
+        child: Center(
+          child: Padding(
+            padding:
+                const EdgeInsets.symmetric(horizontal: 16.0, vertical: 40),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                // Tarjeta para ingresar como Centro
+                Card(
+                  margin: const EdgeInsets.all(12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFDEC3BE),
-                foregroundColor: Colors.black,
-                shape: const StadiumBorder(),
-                minimumSize: const Size(220, 70),
-              ),
-              child: const Text(
-                "Entrar como Centro",
-                style: TextStyle(fontSize: 20),
-              ),
-            ),
-            const SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                // Navega al formulario para Donadores.
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const DonorFormPage(),
+                  elevation: 4,
+                  clipBehavior: Clip.antiAlias,
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CenterFormPage(),
+                        ),
+                      );
+                    },
+                    child: Ink.image(
+                      image: const AssetImage('assets/images/centro.jpg'),
+                      height: 200,
+                      fit: BoxFit.cover,
+                      child: Container(
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.3),
+                        ),
+                        child: Text(
+                          "Entrar como Centro",
+                          style: GoogleFonts.poppins(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFDEC3BE),
-                foregroundColor: Colors.black,
-                shape: const StadiumBorder(),
-                minimumSize: const Size(220, 70),
-              ),
-              child: const Text(
-                "Entrar como Donador",
-                style: TextStyle(fontSize: 20),
-              ),
+                ),
+                // Tarjeta para ingresar como Donador
+                Card(
+                  margin: const EdgeInsets.all(12),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  elevation: 4,
+                  clipBehavior: Clip.antiAlias,
+                  child: InkWell(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const DonorFormPage(),
+                        ),
+                      );
+                    },
+                    child: Ink.image(
+                      image: const AssetImage('assets/images/donador.jpg'),
+                      height: 200,
+                      fit: BoxFit.cover,
+                      child: Container(
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.3),
+                        ),
+                        child: Text(
+                          "Entrar como Donador",
+                          style: GoogleFonts.poppins(
+                            fontSize: 20,
+                            fontWeight: FontWeight.w500,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );
   }
 }
 
-/// Formulario para Centros:
-/// Pide: Nombre del centro, Dirección, Página web (opcional) y Celular.
+/// Formulario para Centros con la estética moderna y la lógica completa de Firebase.
 class CenterFormPage extends StatefulWidget {
   const CenterFormPage({super.key});
+
   @override
   State<CenterFormPage> createState() => _CenterFormPageState();
 }
@@ -96,41 +149,47 @@ class CenterFormPage extends StatefulWidget {
 class _CenterFormPageState extends State<CenterFormPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _centerNameController = TextEditingController();
+  final TextEditingController _cityController = TextEditingController();
   final TextEditingController _addressController = TextEditingController();
   final TextEditingController _websiteController = TextEditingController();
   final TextEditingController _phoneController = TextEditingController();
+
+  // Instancias de Firebase
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
   @override
   void dispose() {
     _centerNameController.dispose();
+    _cityController.dispose();
     _addressController.dispose();
     _websiteController.dispose();
     _phoneController.dispose();
     super.dispose();
   }
 
-  Future<void> saveCenterData() async {
+  Future<void> _registrarCentro() async {
     if (_formKey.currentState!.validate()) {
       User? user = _auth.currentUser;
       if (user != null) {
         String uid = user.uid;
         String centerName = _centerNameController.text;
+        String city = _cityController.text;
         String address = _addressController.text;
         String website = _websiteController.text;
         int phone = int.tryParse(_phoneController.text) ?? 0;
 
-        // Save center data to Firestore
+        // Guardar datos en Firestore
         await _firestore.collection('users').doc(uid).update({
-          'isCentro': 2, // Mark as center
+          'isCentro': 2, // Marca como Centro
           'centerName': centerName,
+          'city': city,
           'address': address,
           'website': website,
           'telefono': phone,
         });
 
-        // Navigate to the home page
+        // Navegar a la página principal
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
@@ -141,94 +200,163 @@ class _CenterFormPageState extends State<CenterFormPage> {
     }
   }
 
+  InputDecoration _buildInputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Formulario para Centros")),
-      body: Center(
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: const EdgeInsets.all(24),
-            child: Form(
-              key: _formKey,
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  TextFormField(
-                    controller: _centerNameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Nombre del Centro',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Por favor ingresa el nombre del centro';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _addressController,
-                    decoration: const InputDecoration(
-                      labelText: 'Dirección',
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Por favor ingresa la dirección';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _websiteController,
-                    decoration: const InputDecoration(
-                      labelText: 'Página web (opcional)',
-                      border: OutlineInputBorder(),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _phoneController,
-                    decoration: const InputDecoration(
-                      labelText: 'Celular',
-                      border: OutlineInputBorder(),
-                    ),
-                    keyboardType: TextInputType.phone,
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Por favor ingresa el número de celular';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 24),
-                  ElevatedButton(
-                    onPressed: saveCenterData,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFFDEC3BE),
-                      foregroundColor: Colors.black,
-                      shape: const StadiumBorder(),
-                      minimumSize: const Size(180, 50),
-                    ),
-                    child: const Text(
-                      "Enviar",
-                      style: TextStyle(fontSize: 18),
-                    ),
-                  ),
-                ],
+      // Sin AppBar para mantener la estética moderna
+      body: Stack(
+        children: [
+          // Fondo con foto de centro
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/centro.jpg'),
+                fit: BoxFit.cover,
               ),
             ),
           ),
-        ),
+          // Desenfoque
+          BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
+            child: Container(color: Colors.black.withOpacity(0)),
+          ),
+          // Contenedor del formulario
+          Center(
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 300),
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.85),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'HOPEBOX',
+                        style: GoogleFonts.amaticSc(
+                          textStyle: const TextStyle(
+                            fontSize: 42,
+                            fontWeight: FontWeight.w900,
+                            color: myColor,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Estás a un paso de crear tu cuenta como Centro para poder recibir donaciones',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      TextFormField(
+                        controller: _centerNameController,
+                        decoration: _buildInputDecoration('Nombre del Centro'),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor ingresa el nombre del centro';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _cityController,
+                        decoration: _buildInputDecoration('Ciudad'),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor ingresa la ciudad';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _addressController,
+                        decoration: _buildInputDecoration('Dirección'),
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor ingresa la dirección';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _websiteController,
+                        decoration:
+                            _buildInputDecoration('Página web (opcional)'),
+                      ),
+                      const SizedBox(height: 16),
+                      TextFormField(
+                        controller: _phoneController,
+                        decoration: _buildInputDecoration('Celular'),
+                        keyboardType: TextInputType.phone,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor ingresa el número de celular';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 24),
+                      ElevatedButton(
+                        onPressed: _registrarCentro,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          minimumSize: const Size(200, 50),
+                        ),
+                        child: Text(
+                          "Registrar Centro",
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // Botón de regreso
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 8,
+            left: 8,
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ),
+        ],
       ),
     );
   }
 }
 
-
+/// Formulario para Donadores con la estética moderna y la lógica completa de Firebase.
 class DonorFormPage extends StatefulWidget {
   const DonorFormPage({super.key});
 
@@ -239,6 +367,8 @@ class DonorFormPage extends StatefulWidget {
 class _DonorFormPageState extends State<DonorFormPage> {
   final _formKey = GlobalKey<FormState>();
   final TextEditingController _phoneController = TextEditingController();
+
+  // Instancias de Firebase
   final FirebaseAuth _auth = FirebaseAuth.instance;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
 
@@ -248,60 +378,140 @@ class _DonorFormPageState extends State<DonorFormPage> {
     super.dispose();
   }
 
-  Future<void> saveDonorData() async {
+  Future<void> _submitDonor() async {
     if (_formKey.currentState!.validate()) {
       User? user = _auth.currentUser;
       if (user != null) {
         String uid = user.uid;
-        int telefono = int.tryParse(_phoneController.text) ?? 0;
+        int phone = int.tryParse(_phoneController.text) ?? 0;
 
-        // Guardar en Firestore
         await _firestore.collection('users').doc(uid).update({
-          'isCentro': 1, // Donador
-          'telefono': telefono,
+          'isCentro': 1, // Marca como Donador
+          'telefono': phone,
         });
 
-        // Navegar a Home
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const Home(isCentro: 1)),
+          MaterialPageRoute(
+            builder: (context) => const Home(isCentro: 1),
+          ),
         );
       }
     }
   }
 
+  InputDecoration _buildInputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Ingresa tu Número de Celular")),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              TextFormField(
-                controller: _phoneController,
-                decoration: const InputDecoration(
-                  labelText: 'Número de Celular',
-                  border: OutlineInputBorder(),
-                ),
-                keyboardType: TextInputType.phone,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Por favor ingresa tu número de celular';
-                  }
-                  return null;
-                },
+      // Sin AppBar para conservar la estética
+      body: Stack(
+        children: [
+          // Fondo con foto de donador
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/donador.jpg'),
+                fit: BoxFit.cover,
               ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: saveDonorData,
-                child: const Text("Enviar"),
-              ),
-            ],
+            ),
           ),
-        ),
+          // Desenfoque
+          BackdropFilter(
+            filter: ImageFilter.blur(sigmaX: 8.0, sigmaY: 8.0),
+            child: Container(color: Colors.black.withOpacity(0)),
+          ),
+          // Contenedor del formulario
+          Center(
+            child: Container(
+              constraints: const BoxConstraints(maxWidth: 300),
+              margin: const EdgeInsets.symmetric(horizontal: 16),
+              padding: const EdgeInsets.all(8),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.8),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: SingleChildScrollView(
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Text(
+                        'HOPE BOX',
+                        style: GoogleFonts.amaticSc(
+                          textStyle: const TextStyle(
+                            fontSize: 36,
+                            fontWeight: FontWeight.w400,
+                            color: myColor,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Estás a un paso de poder donar',
+                        textAlign: TextAlign.center,
+                        style: GoogleFonts.poppins(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      const SizedBox(height: 24),
+                      TextFormField(
+                        controller: _phoneController,
+                        decoration: _buildInputDecoration('Número de Celular'),
+                        keyboardType: TextInputType.phone,
+                        validator: (value) {
+                          if (value == null || value.isEmpty) {
+                            return 'Por favor ingresa tu número de celular';
+                          }
+                          return null;
+                        },
+                      ),
+                      const SizedBox(height: 20),
+                      ElevatedButton(
+                        onPressed: _submitDonor,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: Colors.black,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          ),
+                          minimumSize: const Size(180, 50),
+                        ),
+                        child: Text(
+                          "Enviar",
+                          style: GoogleFonts.poppins(
+                            fontSize: 18,
+                            color: Colors.white,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+          // Botón de regreso
+          Positioned(
+            top: MediaQuery.of(context).padding.top + 8,
+            left: 8,
+            child: IconButton(
+              icon: const Icon(Icons.arrow_back, color: Colors.white),
+              onPressed: () {
+                Navigator.pop(context);
+              },
+            ),
+          ),
+        ],
       ),
     );
   }

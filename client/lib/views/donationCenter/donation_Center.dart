@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_fonts/google_fonts.dart';
+
+const Color myColor = Color(0xFF9D4EDD);
 
 class DonationCenter extends StatelessWidget {
   const DonationCenter({super.key});
@@ -15,48 +18,42 @@ class DonationCenter extends StatelessWidget {
         .collection('users')
         .doc(userId)
         .collection('donations')
-        .where('estado', isEqualTo: 0) // Solo donaciones con estado 0
+        .where('estado', isEqualTo: 0)
         .snapshots()
         .map((snapshot) => snapshot.docs.map((doc) {
               var data = doc.data();
-              data['id'] = doc.id; // ID de la copia en el centro de donación
+              data['id'] = doc.id;
               return data;
             }).toList());
   }
 
   Future<void> updateDonationStatus(String donorId, String donorDonationId, String centerDonationId, String centerId, int newStatus) async {
     if (donorId.isEmpty || donorDonationId.isEmpty || centerDonationId.isEmpty || centerId.isEmpty) {
-      print("Error: ID del donador, ID de la donación del donador o ID del centro no válidos");
+      print("Error: ID inválido");
       return;
     }
 
     try {
-      // Actualizamos el estado en la colección del donador
       await FirebaseFirestore.instance
           .collection('users')
           .doc(donorId)
           .collection('donations')
           .doc(donorDonationId)
           .update({'estado': newStatus});
-      print("Estado actualizado a $newStatus para la donación $donorDonationId del donador $donorId");
 
-      // Actualizamos el estado en la colección del centro de donación
       await FirebaseFirestore.instance
           .collection('users')
           .doc(centerId)
           .collection('donations')
-          .doc(centerDonationId) // Esta es la donación en el centro de donación
+          .doc(centerDonationId)
           .update({'estado': newStatus});
-      print("Estado actualizado a $newStatus para la donación $centerDonationId en el centro $centerId");
-
     } catch (e) {
-      print("Error al actualizar el estado de la donación: $e");
+      print("Error al actualizar estado: $e");
     }
   }
 
   Future<void> deleteDonation(String centerId, String centerDonationId, String donorId, String donorDonationId) async {
     try {
-      // Borra la donación de la colección del centro de donación
       await FirebaseFirestore.instance
           .collection('users')
           .doc(centerId)
@@ -64,11 +61,9 @@ class DonationCenter extends StatelessWidget {
           .doc(centerDonationId)
           .delete();
 
-      // Si la donación es rechazada, actualizamos el estado en la colección del donador a 0
       await updateDonationStatus(donorId, donorDonationId, centerDonationId, centerId, 0);
-      print("Donación rechazada y eliminada del centro");
     } catch (e) {
-      print("Error al rechazar la donación: $e");
+      print("Error al rechazar donación: $e");
     }
   }
 
@@ -76,9 +71,22 @@ class DonationCenter extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Donaciones Pendientes'),
-        backgroundColor: const Color(0xFFDEC3BE),
+        title: Text(
+          'Donaciones Pendientes',
+          style: GoogleFonts.amaticSc(
+            color: Colors.black,
+            fontSize: 24,
+            fontWeight: FontWeight.normal,
+          ),
+        ),
+        centerTitle: true,
+        backgroundColor: Colors.white,
+        elevation: 10,
+        shadowColor: Colors.black.withOpacity(0.5),
+        surfaceTintColor: Colors.transparent,
+        iconTheme: const IconThemeData(color: Colors.black),
       ),
+      backgroundColor: Colors.white,
       body: StreamBuilder<List<Map<String, dynamic>>>(
         stream: getPendingDonations(),
         builder: (context, snapshot) {
@@ -97,9 +105,9 @@ class DonationCenter extends StatelessWidget {
             itemCount: donationList.length,
             itemBuilder: (context, index) {
               final donation = donationList[index];
-              final String centerDonationId = donation['id']; // ID en la colección de donaciones del centro
-              final String donorId = donation['userId'] ?? ''; // ID del donador
-              final String donorDonationId = donation['donationId'] ?? ''; // ID de la donación original del donador
+              final String centerDonationId = donation['id'];
+              final String donorId = donation['userId'] ?? '';
+              final String donorDonationId = donation['donationId'] ?? '';
 
               return Card(
                 elevation: 4,
@@ -110,21 +118,34 @@ class DonationCenter extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        '${donation['type'] ?? 'Sin categoría'} - ${donation['title'] ?? 'Sin título'}',
-                        style: const TextStyle(
+                        '${donation['category']} - ${donation['item']}',
+                        style: GoogleFonts.amaticSc(
                           fontSize: 18,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.normal,
                         ),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Descripción: ${donation['description'] ?? 'No disponible'}',
-                        style: const TextStyle(fontSize: 16),
+                        'Cantidad: ${donation['amount']}',
+                        style: GoogleFonts.poppins(fontSize: 16),
                       ),
                       const SizedBox(height: 8),
                       Text(
-                        'Fecha: ${donation['createdAt'] ?? 'Desconocida'}',
-                        style: const TextStyle(fontSize: 14, color: Colors.grey),
+                        'Donante: ${donation['donor']}',
+                        style: GoogleFonts.poppins(fontSize: 16),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Fecha: ${donation['date']}',
+                        style: GoogleFonts.poppins(
+                          fontSize: 14,
+                          color: Colors.grey,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        donation['message'] ?? '',
+                        style: GoogleFonts.poppins(fontSize: 14),
                       ),
                       const SizedBox(height: 16),
                       Row(
@@ -133,27 +154,19 @@ class DonationCenter extends StatelessWidget {
                           ElevatedButton(
                             onPressed: () async {
                               if (centerId != null && donorDonationId.isNotEmpty && donorId.isNotEmpty) {
-                                await updateDonationStatus(donorId, donorDonationId, centerDonationId, centerId, 2); // Aceptar donación
-                              } else {
-                                print("Error: ID del donador o de la donación no válida");
+                                await updateDonationStatus(donorId, donorDonationId, centerDonationId, centerId, 2);
                               }
                             },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.green,
-                            ),
+                            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
                             child: const Text('Aceptar'),
                           ),
                           ElevatedButton(
                             onPressed: () async {
                               if (centerId != null && donorDonationId.isNotEmpty && donorId.isNotEmpty) {
-                                await deleteDonation(centerId, centerDonationId, donorId, donorDonationId); // Rechazar donación
-                              } else {
-                                print("Error: ID del donador o de la donación no válida");
+                                await deleteDonation(centerId, centerDonationId, donorId, donorDonationId);
                               }
                             },
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: Colors.red,
-                            ),
+                            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
                             child: const Text('Rechazar'),
                           ),
                         ],

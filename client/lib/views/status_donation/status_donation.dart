@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_fonts/google_fonts.dart';
 
-const Color myColor = Color(0xffea638c);
+const Color myColor = Color(0xFF9D4EDD);
 
 void main() {
   runApp(MaterialApp(
@@ -28,46 +28,74 @@ void main() {
   ));
 }
 
+/// Servicio para obtener las donaciones en tiempo real desde Firestore.
 class DonationService {
-  // Función para obtener las donaciones con estado 0 del usuario logueado
-  Stream<List<Map<String, dynamic>>> getDonationsWithStatusZero() {
+  /// Obtiene las donaciones con estado 0 del usuario logueado.
+  Stream<List<Donation>> getDonationsWithStatusZero() {
     String? userId = FirebaseAuth.instance.currentUser?.uid;
     if (userId == null) {
-      return const Stream.empty(); // Si no hay usuario logueado, retorna un Stream vacío
+      return const Stream.empty();
     }
-
-    // Obtiene las donaciones del usuario con estado 0
     return FirebaseFirestore.instance
-        .collection('users') // Colección de usuarios
-        .doc(userId) // Documento del usuario
-        .collection('donations') // Subcolección de donaciones
-        .where('estado', isEqualTo: 0) // Filtra donaciones con estado 0
-        .snapshots() // Escucha los cambios en tiempo real
-        .map((snapshot) {
-          // Convierte los documentos en una lista de mapas
-          return snapshot.docs.map((doc) {
-            var data = doc.data();
-            data['id'] = doc.id; // Añade la ID de la donación al mapa
-            return data;
-          }).toList();
-        });
+        .collection('users')
+        .doc(userId)
+        .collection('donations')
+        .where('estado', isEqualTo: 0)
+        .snapshots()
+        .map((snapshot) => snapshot.docs.map((doc) {
+              var data = doc.data();
+              return Donation(
+                id: doc.id,
+                message: data['message'] ?? 'Sin mensaje',
+                recipient: data['recipient'] ?? 'No disponible',
+                category: data['category'] ?? 'No disponible',
+              );
+            }).toList());
   }
 }
 
+/// Modelo para representar una donación.
+class Donation {
+  final String id;
+  final String message;
+  final String recipient;
+  final String category;
+
+  Donation({
+    required this.id,
+    required this.message,
+    required this.recipient,
+    required this.category,
+  });
+}
+
+/// Pantalla principal que muestra dos pestañas: “Finalizadas” y “En curso”.
 class StatusScreen extends StatelessWidget {
   StatusScreen({Key? key}) : super(key: key);
 
-  // Datos de ejemplo para donaciones finalizadas y en curso
-  final List<Donation> finishedDonations = [];
-  final List<Donation> ongoingDonations = [];
+  // Lista de ejemplo para donaciones finalizadas.
+  final List<Donation> finishedDonations = [
+    Donation(
+      id: '1',
+      message: 'Donación finalizada: Ayuda para el refugio.',
+      recipient: 'Refugio Los Ángeles',
+      category: 'Comida',
+    ),
+    Donation(
+      id: '2',
+      message: 'Donación finalizada: Apoyo a campaña de salud.',
+      recipient: 'Clínica Santa María',
+      category: 'Ropa',
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
     return DefaultTabController(
-      length: 2, // Dos pestañas: finalizadas y en curso
+      length: 2, // Dos pestañas: finalizadas y en curso.
       child: Scaffold(
         appBar: AppBar(
-          backgroundColor: Colors.white, // Fondo blanco en el AppBar
+          backgroundColor: Colors.white,
           surfaceTintColor: Colors.transparent,
           title: Text(
             'Mis Donaciones',
@@ -81,7 +109,7 @@ class StatusScreen extends StatelessWidget {
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(48),
             child: Container(
-              color: Colors.white, // Fondo blanco para la zona de TabBar
+              color: Colors.white,
               child: const TabBar(
                 indicatorColor: myColor,
                 labelColor: myColor,
@@ -97,8 +125,22 @@ class StatusScreen extends StatelessWidget {
         backgroundColor: Colors.white,
         body: TabBarView(
           children: [
+            // Pestaña de donaciones finalizadas con datos de ejemplo.
             DonationList(donations: finishedDonations),
-            DonationList(donations: ongoingDonations),
+            // Pestaña de donaciones en curso, obtenidas desde Firebase.
+            StreamBuilder<List<Donation>>(
+              stream: DonationService().getDonationsWithStatusZero(),
+              builder: (context, snapshot) {
+                if (!snapshot.hasData) {
+                  return const Center(child: CircularProgressIndicator());
+                }
+                final donations = snapshot.data!;
+                if (donations.isEmpty) {
+                  return const Center(child: Text('No tienes donaciones pendientes.'));
+                }
+                return DonationList(donations: donations);
+              },
+            ),
           ],
         ),
       ),
@@ -106,28 +148,13 @@ class StatusScreen extends StatelessWidget {
   }
 }
 
-// Modelo actualizado para representar una donación con información adicional
-class Donation {
-  final String id;
-  final String title;
-  final String description;
-  final String category;
-
-  Donation({
-    required this.id,
-    required this.title,
-    required this.description,
-    required this.category,
-  });
-}
-
-// Widget para representar cada donación en una tarjeta con diseño vertical y ancho limitado
+/// Widget que representa cada donación en una tarjeta.
 class DonationCard extends StatelessWidget {
   final Donation donation;
 
   const DonationCard({Key? key, required this.donation}) : super(key: key);
 
-  // Función para mostrar el diálogo con detalles de la donación
+  /// Muestra un diálogo con los detalles de la donación.
   void _showDonationDialog(BuildContext context) {
     showDialog(
       context: context,
@@ -142,8 +169,8 @@ class DonationCard extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               children: [
                 Text(
-                  donation.title,
-                  style: GoogleFonts.roboto(
+                  donation.message,
+                  style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.normal,
                   ),
@@ -151,9 +178,8 @@ class DonationCard extends StatelessWidget {
                 ),
                 const SizedBox(height: 10),
                 Text(
-                  '${donation.description
-                  } .',
-                  style: GoogleFonts.roboto(
+                  'Donado a: ${donation.recipient}',
+                  style: GoogleFonts.poppins(
                     fontSize: 14,
                     color: Colors.grey,
                     fontWeight: FontWeight.normal,
@@ -162,7 +188,7 @@ class DonationCard extends StatelessWidget {
                 const SizedBox(height: 10),
                 Text(
                   'Categoría: ${donation.category}',
-                  style: GoogleFonts.roboto(
+                  style: GoogleFonts.poppins(
                     fontSize: 14,
                     color: Colors.grey,
                     fontWeight: FontWeight.normal,
@@ -179,7 +205,7 @@ class DonationCard extends StatelessWidget {
                   onPressed: () => Navigator.of(context).pop(),
                   child: Text(
                     'Cerrar',
-                    style: GoogleFonts.roboto(
+                    style: GoogleFonts.poppins(
                       color: myColor,
                       fontSize: 16,
                       fontWeight: FontWeight.normal,
@@ -210,19 +236,17 @@ class DonationCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Mensaje principal de la donación
                 Text(
-                  donation.title,
-                  style: GoogleFonts.roboto(
+                  donation.message,
+                  style: GoogleFonts.poppins(
                     fontSize: 16,
                     fontWeight: FontWeight.normal,
                   ),
                 ),
                 const SizedBox(height: 10),
-                // Información adicional
                 Text(
-                  '${donation.description}.',
-                  style: GoogleFonts.roboto(
+                  'Donado a: ${donation.recipient}',
+                  style: GoogleFonts.poppins(
                     fontSize: 14,
                     color: Colors.grey,
                     fontWeight: FontWeight.normal,
@@ -231,7 +255,7 @@ class DonationCard extends StatelessWidget {
                 const SizedBox(height: 5),
                 Text(
                   'Categoría: ${donation.category}',
-                  style: GoogleFonts.roboto(
+                  style: GoogleFonts.poppins(
                     fontSize: 14,
                     color: Colors.grey,
                     fontWeight: FontWeight.normal,
@@ -246,53 +270,19 @@ class DonationCard extends StatelessWidget {
   }
 }
 
-// Widget para listar las donaciones en cada pestaña
-class DonationList extends StatefulWidget {
+/// Widget que lista las donaciones recibidas.
+class DonationList extends StatelessWidget {
   final List<Donation> donations;
 
   const DonationList({Key? key, required this.donations}) : super(key: key);
 
   @override
-  _DonationListState createState() => _DonationListState();
-}
-
-class _DonationListState extends State<DonationList> {
-  bool donationsLoaded = false;
-
-  @override
-  void initState() {
-    super.initState();
-    DonationService().getDonationsWithStatusZero().listen((data) {
-      setState(() {
-        widget.donations.clear();
-        for (var donation in data) {
-          widget.donations.add(Donation(
-            id: donation['id'],
-            title: donation['title'] ?? 'Sin mensaje',
-            description: donation['description'] ?? 'No disponible',
-            category: donation['category'] ?? 'No disponible',
-          ));
-        }
-        donationsLoaded = true;
-      });
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
-    if (!donationsLoaded) {
-      return const Center(child: CircularProgressIndicator());
-    }
-
-    if (widget.donations.isEmpty) {
-      return const Center(child: Text('No tienes donaciones pendientes.'));
-    }
-
     return ListView.builder(
       padding: const EdgeInsets.only(top: 16),
-      itemCount: widget.donations.length,
+      itemCount: donations.length,
       itemBuilder: (context, index) {
-        return DonationCard(donation: widget.donations[index]);
+        return DonationCard(donation: donations[index]);
       },
     );
   }
