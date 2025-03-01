@@ -14,16 +14,20 @@ void main() async {
 }
 
 class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'Donations',
       theme: ThemeData(
-        colorScheme:
-            ColorScheme.fromSeed(seedColor: Color.fromARGB(255, 215, 222, 230)),
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: Color.fromARGB(255, 215, 222, 230),
+        ),
         useMaterial3: true,
       ),
+      initialRoute: '/login', // Esta es la ruta inicial
       routes: appRoutes,
     );
   }

@@ -1,0 +1,19 @@
+class _BaseScreenState extends State<BaseScreen> {
+  String profileImageUrl = ''; // Store the profile picture URL
+  String profileName = ''; // Store the profile name
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  void _loadUserData() {
+    User? user = FirebaseAuth.instance.currentUser;
+    if (user != null) {
+      setState(() {
+        profileImageUrl = user.photoURL ?? ''; // Get Google profile pic
+        profileName = user.displayName ?? 'Juan Pérez'; // Get Google profile name
+      });
+    }
+  }

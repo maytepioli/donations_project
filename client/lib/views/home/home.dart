@@ -1,68 +1,191 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_application/views/widgets/base_screen.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:material_design_icons_flutter/material_design_icons_flutter.dart';
+const Color myColor = Color(0xFF9D4EDD);
+
+// Modelo de donación para datos de ejemplo
+class Donation {
+  final String donorName;
+  final String centerName;
+  final String donationDate;
+  final double amount;
+
+  Donation({
+    required this.donorName,
+    required this.centerName,
+    required this.donationDate,
+    required this.amount,
+  });
+}
 
 class Home extends StatelessWidget {
-  const Home({super.key});
+  final int isCentro; // true si el usuario es centro, false si es donador
+  const Home({Key? key, required this.isCentro}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return BaseScreen(
-      title: 'Home',
-      currentPage: 0,
-      onBottomNavTap: (index) {
-        // Define la navegación según el índice seleccionado en la barra inferior
-        if (index == 0) {
-          Navigator.pushNamed(context, '/');
-        } else if (index == 1) {
-          Navigator.pushNamed(context, '/object');
-        } else if (index == 2) {
-          Navigator.pushNamed(context, '/map');
-        }
-      },
-      // Contenido de la pantalla Home
-      body: Center(
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              buildButton(context, 'Login', '/login'),
-              const SizedBox(height: 16),
-              buildButton(context, 'Register', '/register'),
-              const SizedBox(height: 16),
-              buildButton(context, 'Donations', '/donations'),
-              const SizedBox(height: 16),
-              buildButton(context, 'Object', '/object'),
-              const SizedBox(height: 16),
-              buildButton(context, 'Profile', '/profile'),
-              const SizedBox(height: 16),
-              buildButton(context, 'Map', '/map'),
-            ],
-          ),
-        ),
+    // Estilo personalizado para el título del AppBar
+    final titleStyle = GoogleFonts.amaticSc(
+      textStyle: const TextStyle(
+        fontSize: 24,
+        color: myColor,
+        fontWeight: FontWeight.bold,
       ),
     );
+
+    // Configuración común para el AppBar
+    final appBarBackgroundColor = Colors.white;
+    final appBarElevation = 10.0;
+    final appBarShadowColor = Colors.black.withOpacity(0.5);
+    final appBarSurfaceTintColor = Colors.transparent;
+    final appBarIconTheme = const IconThemeData(color: Colors.black);
+
+if (isCentro == 2) {
+      return BaseScreen(
+        title: 'HopeBox',
+        body: _buildInstagramFeed(context),
+        currentPage: 0,
+        onBottomNavTap: (index) {
+          if (index == 0) {
+            Navigator.pushNamed(context, '/home');
+          } else if (index == 1) {
+            Navigator.pushNamed(context, '/profile');
+          } else if (index == 2) {
+            Navigator.pushNamed(context, '/notification');
+          } else if (index == 3) {
+            Navigator.pushNamed(context, '/donations_Center');
+          }
+        },
+        showAppBarActions: false,
+        bottomNavIcons: const <IconData>[
+          MdiIcons.homeOutline,
+          MdiIcons.accountCircleOutline,
+          MdiIcons.bellOutline,
+          MdiIcons.giftOutline,
+        ],
+        appBarTitleStyle: titleStyle,
+        appBarBackgroundColor: appBarBackgroundColor,
+        appBarElevation: appBarElevation,
+        appBarShadowColor: appBarShadowColor,
+        appBarSurfaceTintColor: appBarSurfaceTintColor,
+        appBarIconTheme: appBarIconTheme,
+      );
+    } else {
+      return BaseScreen(
+        title: 'HopeBox',
+        body: _buildInstagramFeed(context),
+        currentPage: 0,
+        onBottomNavTap: (index) {
+          if (index == 0) {
+            Navigator.pushNamed(context, '/home');
+          } else if (index == 1) {
+            Navigator.pushNamed(context, '/object');
+          } else if (index == 2) {
+            Navigator.pushNamed(context, '/map');
+          }
+        },
+        bottomNavIcons: const <IconData>[
+          MdiIcons.homeOutline,
+          MdiIcons.plusCircleOutline,
+          MdiIcons.mapMarkerOutline,
+        ],
+        appBarTitleStyle: titleStyle,
+        appBarBackgroundColor: appBarBackgroundColor,
+        appBarElevation: appBarElevation,
+        appBarShadowColor: appBarShadowColor,
+        appBarSurfaceTintColor: appBarSurfaceTintColor,
+        appBarIconTheme: appBarIconTheme,
+      );
+    }
   }
 }
 
-// Widget auxiliar para crear los botones
-Widget buildButton(BuildContext context, String text, String routeName) {
-  return ElevatedButton(
-    onPressed: () {
-      Navigator.pushNamed(context, routeName);
+// Widget que simula el feed de donaciones con un botón que navega a la ruta '/rol'
+Widget _buildInstagramFeed(BuildContext context) {
+  final List<Map<String, String>> fakePosts = [
+    {
+      'username': 'Juan Pérez',
+      'avatar': 'assets/images/avatar2.png',
+      'postImage': 'assets/images/animales.jpg',
+      'caption': 'Disfrutando de un día soleado',
     },
-    style: ElevatedButton.styleFrom(
-      backgroundColor: const Color(0xFFDEC3BE),
-      minimumSize: const Size(150, 50),
-      shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(20),
-      ),
-    ),
-    child: Text(
-      text,
-      style: const TextStyle(
-        color: Colors.white,
-        fontSize: 20,
-      ),
-    ),
+    {
+      'username': 'María López',
+      'avatar': 'assets/images/avatar.png',
+      'postImage': 'assets/images/donacion_ropa.jpg',
+      'caption': 'Donando amor a través de la ropa',
+    },
+    {
+      'username': 'Carlos Mendoza',
+      'avatar': 'assets/images/avatar2.png',
+      'postImage': 'assets/images/donacion_comida.jpg',
+      'caption': 'Compartiendo lo que tenemos',
+    },
+  ];
+  return ListView.builder(
+    itemCount: fakePosts.length,
+    itemBuilder: (context, index) {
+      final post = fakePosts[index];
+      return Card(
+        margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+        elevation: 4,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(12),
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    radius: 20,
+                    backgroundImage: AssetImage(post['avatar']!),
+                  ),
+                  const SizedBox(width: 8),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        post['username']!,
+                        style: GoogleFonts.poppins(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Text(
+                        post['caption']!,
+                        style: GoogleFonts.poppins(
+                          fontSize: 12,
+                          color: Colors.grey,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+            Image.asset(
+              post['postImage']!,
+              fit: BoxFit.cover,
+              width: double.infinity,
+              height: 300,
+            ),
+            Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                children: [
+                  Icon(MdiIcons.heartOutline, color: Colors.black87, size: 30),
+                  const SizedBox(width: 8),
+                  Icon(MdiIcons.commentOutline,
+                      color: Colors.black87, size: 30),
+                ],
+              ),
+            ),
+          ],
+        ),
+      );
+    },
   );
 }
