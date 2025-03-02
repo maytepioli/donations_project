@@ -378,17 +378,23 @@ class _DonorFormPageState extends State<DonorFormPage> {
     super.dispose();
   }
 
-  Future<void> _submitDonor() async {
-    if (_formKey.currentState!.validate()) {
-      User? user = _auth.currentUser;
-      if (user != null) {
-        String uid = user.uid;
-        int phone = int.tryParse(_phoneController.text) ?? 0;
+Future<void> _submitDonor() async {
+  print("Iniciando _submitDonor()");
+  if (_formKey.currentState!.validate()) {
+    print("Formulario válido");
+    User? user = _auth.currentUser;
+    if (user != null) {
+      print("Usuario autenticado: ${user.uid}");
+      String uid = user.uid;
+      int phone = int.tryParse(_phoneController.text) ?? 0;
+      print("Número de celular: $phone");
 
+      try {
         await _firestore.collection('users').doc(uid).update({
-          'isCentro': 1, // Marca como Donador
+          'isCentro': 1,
           'telefono': phone,
         });
+        print("Datos guardados correctamente");
 
         Navigator.pushReplacement(
           context,
@@ -396,16 +402,17 @@ class _DonorFormPageState extends State<DonorFormPage> {
             builder: (context) => Home(isCentro: 1),
           ),
         );
-
-        print('Navegación a Home(isCentro: 2) ejecutada.');
-      } else {
-        /// SI NO INICIAMOS SESION CON GOOGLE LA NAVEGACION NO FUNCIONAAA
-          print("No hay usuario autenticado");
+        print("Navegación realizada a Home");
+      } catch (e) {
+        print("Error guardando datos: $e");
       }
     } else {
-      print("Formulario de Centro no válido");
+      print("No hay usuario autenticado");
     }
+  } else {
+    print("Formulario no válido");
   }
+}
 
   InputDecoration _buildInputDecoration(String label) {
     return InputDecoration(

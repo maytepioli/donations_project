@@ -2,40 +2,48 @@ import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_application/services/auth_service.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 const Color myColor = Color(0xFF9D4EDD);
 
 class Login extends StatelessWidget {
   const Login({Key? key}) : super(key: key);
 
-  Future<void> signInWithGoogle(BuildContext context) async {
+ Future<void> signInWithGoogle(BuildContext context) async {
     try {
-      GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
-      if (googleUser == null) return;
+      User? user = await AuthService().signInWithGoogle(); // Use AuthService for login
 
-      GoogleSignInAuthentication googleAuth = await googleUser.authentication;
-      AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleAuth.accessToken,
-        idToken: googleAuth.idToken,
-      );
-
-      UserCredential userCredential =
-          await FirebaseAuth.instance.signInWithCredential(credential);
-
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      bool isRegistered = prefs.getBool('isRegistered') ?? false;
-      bool isCentro = prefs.getBool('isCentro') ?? false;
-
-      if (isRegistered) {
-        Navigator.pushReplacementNamed(context, '/', arguments: isCentro);
-      } else {
-        Navigator.pushReplacementNamed(context, '/rol');
+      if (user == null) {
+        print("No user signed in.");
+        return;
       }
+
+      // Fetch isCentro value from Firestore
+      int? isCentro = await AuthService().isUserDonationCenter(user.uid);
+
+      // Store the value locally
+      SharedPreferences prefs = await SharedPreferences.getInstance();
+      if (isCentro != 0) {
+        await prefs.setInt('isCentro', isCentro);
+      }
+
+      // Navigate based on isCentro value
+      if (isCentro == 0) {
+        Navigator.pushReplacementNamed(context, '/rol'); // Not set
+      } else if (isCentro == 2) {
+        Navigator.pushReplacementNamed(context, '/'); // Donation center
+      } else {
+        Navigator.pushReplacementNamed(context, '/'); // Regular user
+      }
+
+      print("Signed in as: ${user.displayName}");
     } catch (e) {
-      print("Error al iniciar sesión con Google: $e");
+      print("Error signing in with Google: $e");
     }
   }
+ 
 
   @override
   Widget build(BuildContext context) {
