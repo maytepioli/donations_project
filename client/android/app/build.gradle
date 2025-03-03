@@ -12,6 +12,14 @@ android {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
     }
+        signingConfigs {
+        release {
+            keyAlias 'my-key-alias'
+            keyPassword 'hopebox'
+            storeFile file('my-release-key.jks')
+            storePassword 'hopebox'
+        }
+    }
     kotlinOptions {
         jvmTarget = '17'
     }
@@ -25,7 +33,7 @@ android {
     }
     buildTypes {
         release {
-            signingConfig signingConfigs.debug
+            signingConfig signingConfigs.release
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
